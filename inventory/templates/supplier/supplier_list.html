@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+      /* ✅ Container Styling */
+.container {
+    max-width: 900px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin: auto;
+    margin-top: 30px;
+}
+
+/* 🏭 Title */
+.container h2 {
+    text-align: center;
+    font-weight: bold;
+    color: #1E3A8A;
+    padding-bottom: 10px;
+}
+
+/* 🔍 Search Bar */
+form.d-flex {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+form input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.btn-primary {
+    background: #2563EB;
+    border: none;
+    padding: 10px 15px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    background: #1E40AF;
+}
+
+/* ➕ Add Supplier Button */
+.btn-success {
+    background: #16a34a;
+    border: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-success:hover {
+    background: #15803d;
+}
+
+/* 📊 Table Styling */
+.table {
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead {
+    background: #1E3A8A;
+    color: white;
+}
+
+.table tbody tr:hover {
+    background: #f1f5f9;
+}
+
+/* ✏️ Edit & 🗑️ Delete Buttons */
+.btn-warning {
+    background: #F59E0B;
+    border: none;
+    transition: 0.3s;
+}
+
+.btn-warning:hover {
+    background: #D97706;
+}
+
+.btn-danger {
+    background: #DC2626;
+    border: none;
+    transition: 0.3s;
+}
+
+.btn-danger:hover {
+    background: #B91C1C;
+}
+
+/* 📱 Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+    }
+    
+    form.d-flex {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .table thead {
+        display: none;
+    }
+
+    .table tbody tr {
+        display: block;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .table tbody td {
+        display: block;
+        text-align: right;
+        font-size: 16px;
+    }
+
+    .table tbody td:before {
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #374151;
+    }
+}
+
+</style>
+<div class="container">
+    <h2 class="my-4">🏭 Supplier Management</h2>
+    
+    <!-- 🔍 Search Form -->
+    <form method="GET" action="{% url 'inventory:supplier_list' %}" class="d-flex mb-3">
+        <input type="text" name="q" value="{{ query }}" class="form-control me-2" placeholder="Search by supplier name...">
+        <button type="submit" class="btn btn-primary">🔍 Search</button>
+        {% if query %}
+        <a href="{% url 'inventory:supplier_list' %}" class="btn btn-secondary ms-2">✖ Clear</a>
+        {% endif %}
+    </form>
+
+    <a href="{% url 'inventory:supplier_create' %}" class="btn btn-success mb-3">➕ Add Supplier</a>
+    
+    <table class="table table-hover shadow-sm rounded">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th>Address</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for supplier in suppliers %}
+            <tr>
+                <td>{{ supplier.name }}</td>
+                <td>{{ supplier.contact_number }}</td>
+                <td>{{ supplier.email }}</td>
+                <td>{{ supplier.address }}</td>
+                <td>
+                    <a href="{% url 'inventory:supplier_update' supplier.id %}" class="btn btn-warning btn-sm">✏️ Edit</a>
+                    <a href="{% url 'inventory:supplier_delete' supplier.id %}" class="btn btn-danger btn-sm">🗑️ Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">⚠️ No suppliers found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2 class="my-4">🛍️ Browse Products</h2>
+
+    <!-- 🔍 Search Form -->
+    <form method="GET" action="{% url 'inventory:product_list' %}" class="d-flex mb-3">
+        <input type="text" name="q" value="{{ query }}" class="form-control me-2" placeholder="Search products...">
+        <button type="submit" class="btn btn-primary">🔍 Search</button>
+        {% if query %}
+        <a href="{% url 'inventory:product_list' %}" class="btn btn-secondary ms-2">✖ Clear</a>
+        {% endif %}
+    </form>
+
+    <!-- 📂 Category Filter -->
+    <form method="GET" action="{% url 'inventory:product_list' %}" class="mb-3">
+        <select name="category" class="form-select" onchange="this.form.submit()">
+            <option value="">📂 All Categories</option>
+            {% for category in categories %}
+            <option value="{{ category.id }}" {% if category.id|stringformat:"s" == selected_category %}selected{% endif %}>
+                {{ category.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <!-- 🛒 Product Grid -->
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">${{ product.price }}</p>
+                    <p class="text-muted">Stock: {{ product.available_stock }}</p> <!-- Corrected to use available_stock -->
+                    <a href="{% url 'inventory:product_detail' product.id %}" class="btn btn-info">📄 View Details</a>
+                    <a href="{% url 'inventory:add_to_cart' product.id %}" class="btn btn-success">➕ Add to Cart</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center">⚠️ No products found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+th {
+    background-color: #007bff;
+    color: white;
+}
+tr:hover {
+    background-color: #f1f1f1;
+}
+.action-links {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+.action-links a {
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+.edit-btn { background-color: #28a745; color: white; }
+.edit-btn:hover { background-color: #218838; }
+.back-btn {
+    display: inline-block;
+    margin-top: 15px;
+    background-color: #6c757d;
+    color: white;
+    padding: 8px 12px;
+    text-decoration: none;
+    border-radius: 4px;
+}
+.back-btn:hover { background-color: #5a6268; }
+</style>
+
+<div class="container">
+    <h2>📦 All Stock Entries</h2>
+
+    <table>
+        <tr>
+            <th>Product</th>
+            <th>Current Stock</th>
+            <th>Last Updated</th>
+            <th>Actions</th>
+        </tr>
+        {% for stock in stock_entries %}
+        <tr>
+            <td>{{ stock.product.name }}</td>
+            <td>{{ stock.quantity }}</td>
+            <td>{{ stock.last_updated|date:"Y-m-d H:i" }}</td>
+            <td class="action-links">
+                <a href="{% url 'inventory:update_stock' stock.product.id %}" class="edit-btn">Update Stock</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No stock entries found.</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="{% url 'inventory:view_stock' %}" class="btn back-btn">🔄 Refresh Stock List</a>
+</div>
+{% endblock %}

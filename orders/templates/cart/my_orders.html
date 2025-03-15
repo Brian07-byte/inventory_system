@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+.orders-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.orders-table th, .orders-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.orders-table th {
+    background: #007bff;
+    color: white;
+    text-transform: uppercase;
+}
+
+.orders-table tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+.orders-table tr:hover {
+    background: #f1f1f1;
+}
+
+.status {
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* Status colors */
+.status.pending { background: #ffcc00; color: black; }
+.status.processing { background: #17a2b8; color: white; }
+.status.shipped { background: #007bff; color: white; }
+.status.delivered { background: #28a745; color: white; }
+.status.cancelled { background: #dc3545; color: white; }
+
+.no-orders {
+    text-align: center;
+    font-size: 16px;
+    color: #888;
+    margin-top: 20px;
+}
+
+</style>
+<div class="orders-container">
+    <h2>📦 My Orders</h2>
+
+    {% if orders %}
+    <table class="orders-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Payment Method</th>
+                <th>Shipping Address</th>
+                <th>Items</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>${{ order.total_amount }}</td>
+                <td class="status {{ order.status|lower }}">{{ order.status }}</td>
+                <td>{{ order.created_at|date:"M d, Y - H:i" }}</td>
+                <td>MPesa</td>
+                <td>{{ order.address }}</td>
+                <td>
+                    <ul>
+                        {% for item in order.cart.cart_items.all %}
+                        <li>{{ item.product.name }} (x{{ item.quantity }})</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="no-orders">You have not placed any orders yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

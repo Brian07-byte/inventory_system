@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 20px;
+        background: white;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    h2 {
+        color: #dc3545;
+        font-size: 22px;
+    }
+
+    p {
+        font-size: 18px;
+        color: #555;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background-color: #c82333;
+    }
+
+    .btn-cancel {
+        background-color: #6c757d;
+        color: white;
+        text-decoration: none;
+        padding: 10px 16px;
+        display: inline-block;
+        border-radius: 5px;
+    }
+
+    .btn-cancel:hover {
+        background-color: #5a6268;
+    }
+
+    .alert {
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    .alert-error { background: #f8d7da; color: #721c24; }
+</style>
+
+<div class="container">
+    <h2>⚠️ Confirm Deletion</h2>
+
+    {% if product.available_stock > 0 %}
+        <p class="alert alert-error">❌ Cannot delete! <strong>{{ product.name }}</strong> still has <strong>{{ product.available_stock }}</strong> in stock.</p>
+        <a href="{% url 'inventory:view_products' %}" class="btn-cancel">⬅️ Back to Products</a>
+    {% else %}
+        <p>Are you sure you want to delete "<strong>{{ product.name }}</strong>"?</p>
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-delete">✅ Yes, Delete</button>
+        </form>
+        <br>
+        <a href="{% url 'inventory:view_products' %}" class="btn-cancel">❌ Cancel</a>
+    {% endif %}
+</div>
+
+{% endblock %}

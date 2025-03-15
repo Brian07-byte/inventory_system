@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+      /* 📌 Container Styling */
+.container {
+    max-width: 600px;
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: auto;
+    margin-top: 50px;
+}
+
+/* ✅ Form Headline */
+.container h2 {
+    text-align: center;
+    font-weight: bold;
+    color: #1E3A8A;
+}
+
+/* 📝 Input Fields */
+.container input[type="text"],
+.container input[type="email"],
+.container input[type="password"],
+.container select,
+.container textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+/* 🟢 Submit Button */
+.btn-success {
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    background: #16a34a;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-success:hover {
+    background: #15803d;
+}
+
+/* 🔙 Back Button */
+.btn-secondary {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    background: #4B5563;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-secondary:hover {
+    background: #374151;
+}
+
+/* 🖥 Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+    }
+}
+
+</style>
+<div class="container">
+    <h2 class="my-4">{{ title }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-success">💾 Save</button>
+        <a href="{% url 'inventory:supplier_list' %}" class="btn btn-secondary">🔙 Back</a>
+    </form>
+</div>
+{% endblock %}

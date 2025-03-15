@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Payment Report</h2>
+<table border="1">
+    <tr>
+        <th>Payment ID</th>
+        <th>User</th>
+        <th>Amount</th>
+        <th>Date</th>
+    </tr>
+    {% for payment in payments %}
+    <tr>
+        <td>{{ payment.id }}</td>
+        <td>{{ payment.user.username }}</td>
+        <td>${{ payment.amount }}</td>
+        <td>{{ payment.date }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<h3>Total Payments: ${{ total_payments }}</h3>
+{% endblock %}

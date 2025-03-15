@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* Scoped Styles for Order Page */
+    .order-page {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f8f9fa;
+        padding: 20px;
+    }
+
+    .order-list-container {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        max-width: 850px;
+        width: 100%;
+        text-align: center;
+        border-top: 5px solid #007bff;
+    }
+
+    .order-list-container h2 {
+        color: #007bff;
+        font-weight: bold;
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+
+    /* Table Styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #007bff;
+        color: white;
+    }
+
+    /* Alternating Row Colors */
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .action-buttons a {
+        text-decoration: none;
+        font-weight: bold;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: 0.3s ease-in-out;
+    }
+
+    .view-btn {
+        background: #17a2b8;
+        color: white;
+    }
+
+    .update-btn {
+        background: #28a745;
+        color: white;
+    }
+
+    .delete-btn {
+        background: #dc3545;
+        color: white;
+    }
+
+    .action-buttons a:hover {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+
+</style>
+
+<!-- Order Page Wrapper -->
+<div class="order-page">
+    <div class="order-list-container">
+        <h2>🛒 Order List</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.customer_name }}</td>
+                <td>{{ order.status }}</td>
+                <td>${{ order.total_amount }}</td>
+                <td>{{ order.created_at }}</td>
+                <td class="action-buttons">
+                    <a href="{% url 'order:admin_order_detail' order.id %}" class="view-btn">View</a>
+                    <a href="{% url 'order:update_order_status' order.id %}" class="update-btn">Update</a>
+                    <a href="{% url 'order:delete_order' order.id %}" class="delete-btn">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

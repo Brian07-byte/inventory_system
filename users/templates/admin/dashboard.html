@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+/* Dashboard Container */
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+/* Section Styling */
+section {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Headings */
+h2 {
+    color: #3498db;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+/* Report Summary */
+p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #555;
+}
+
+/* Links */
+a {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: white;
+    background: #3498db;
+    border-radius: 5px;
+    transition: 0.3s ease-in-out;
+}
+
+a:hover {
+    background: #2980b9;
+}
+
+/* List Styling */
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    background: #ecf0f1;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* Button Styling */
+button {
+    border: none;
+    background: #e74c3c;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+button:hover {
+    background: #c0392b;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    section {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 28px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    p, li {
+        font-size: 14px;
+    }
+}
+
+</style>
+
+
+
+    <h1>Admin Dashboard</h1>
+
+    <section>
+        <h2>Sales Report</h2>
+        <p>{{ sales_report.summary }}</p>
+        <a href="{% url 'sales_report' %}">View Full Report</a>
+    </section>
+
+    <section>
+        <h2>Stock Report</h2>
+        <p>{{ stock_report.summary }}</p>
+        <a href="{% url 'stock_report' %}">View Full Report</a>
+    </section>
+
+    <section>
+        <h2>Category Performance</h2>
+        <ul>
+            {% for report in category_reports %}
+                <li>{{ report.category_name }} - {{ report.performance_score }}</li>
+            {% endfor %}
+        </ul>
+        <a href="">View All Categories</a>
+    </section>
+
+    <section>
+        <h2>Payment Reports</h2>
+        <p>{{ payment_report.summary }}</p>
+        <a href="{% url 'payment_report' %}">View Full Report</a>
+    </section>
+
+    <section>
+        <h2>Manage Users</h2>
+        <ul>
+            {% for user in users %}
+                <li>{{ user.username }} - {{ user.email }}</li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'manage_users' %}">Manage Users</a>
+    </section>
+
+    <section>
+        <h2>Orders</h2>
+        <ul>
+            {% for order in orders %}
+                <li>Order #{{ order.id }} - {{ order.status }}</li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'order:admin_order_list' %}">View All Orders</a>
+    </section>
+
+    <section>
+        <h2>Inventory</h2>
+        <ul>
+            {% for item in inventory %}
+                <li>{{ item.name }} - {{ item.quantity }} in stock</li>
+            {% endfor %}
+        </ul>
+        <a href="">Manage Inventory</a>
+    </section>
+
+
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+      /* 🏦 Payment Page Container */
+.payment-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* 🛒 Order Total */
+.payment-container p {
+    font-size: 18px;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* 💳 Payment Button */
+.payment-container .btn-success {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background-color: #28a745;
+    color: white;
+}
+
+.payment-container .btn-success:hover {
+    background-color: #218838;
+}
+
+/* 🔙 Back to Checkout Button */
+.payment-container .btn-secondary {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+}
+
+.payment-container .btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+</style>
+<div class="payment-container">
+    <h2>Payment 💳</h2>
+
+    <p><strong>Order Total:</strong> Ksh{{ order.total_amount }}</p>
+    <p>Click below to make your payment:</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Confirm Payment ✅</button>
+    </form>
+
+    <a href="{% url 'order:checkout_view' %}" class="btn btn-secondary">⬅️ Back to Checkout</a>
+</div>
+{% endblock %}

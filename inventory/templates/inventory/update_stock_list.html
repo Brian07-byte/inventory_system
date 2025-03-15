@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* 🌟 General Container Styling */
+    .container {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 25px;
+        background: #fff;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+        text-align: center;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* ✅ Success & ❌ Error Messages */
+    .alert {
+        padding: 12px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        font-weight: 600;
+        text-align: center;
+    }
+    .alert-success { background: #d4edda; color: #155724; }
+    .alert-error { background: #f8d7da; color: #721c24; }
+
+    /* 📦 Stock Info */
+    .stock-info {
+        font-size: 18px;
+        margin: 20px 0;
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* 📊 Stock Update Form */
+    .stock-form {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    /* 🔢 Stock Input */
+    .stock-input {
+        width: 100px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 16px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    .stock-input:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+
+    /* 🎯 Action Buttons */
+    .btn {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .btn-add {
+        background-color: #28a745;
+        color: white;
+        box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+    }
+    .btn-add:hover {
+        background-color: #218838;
+        transform: translateY(-2px);
+    }
+
+    .btn-reduce {
+        background-color: #dc3545;
+        color: white;
+        box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+    }
+    .btn-reduce:hover {
+        background-color: #c82333;
+        transform: translateY(-2px);
+    }
+
+    /* ⬅️ Back Button */
+    .back-btn {
+        display: inline-block;
+        margin-top: 20px;
+        background-color: #007bff;
+        color: white;
+        padding: 10px 14px;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 15px;
+        transition: 0.3s ease;
+        box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+    }
+    .back-btn:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+    }
+
+</style>
+
+<div class="container">
+    <h2>🔄 Update Stock for <span style="color: #007bff;">{{ product.name }}</span></h2>
+
+    <!-- ✅ Display Messages -->
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+
+    <div class="stock-info">
+        📊 Current Stock: <span style="color: #28a745;">{{ stock.quantity }}</span>
+    </div>
+
+    <!-- 🏷️ Stock Update Form -->
+    <form action="{% url 'inventory:update_stock' product.id %}" method="post" class="stock-form">
+        {% csrf_token %}
+        <input type="number" name="quantity" placeholder="Enter quantity" required class="stock-input">
+        <button type="submit" name="action" value="add" class="btn btn-add">➕ Add</button>
+        <button type="submit" name="action" value="reduce" class="btn btn-reduce">➖ Reduce</button>
+    </form>
+
+    <!-- ⬅️ Back to Stock Management -->
+    <a href="{% url 'inventory:view_stock' %}" class="back-btn">⬅️ Back to Stock Management</a>
+</div>
+
+{% endblock %}

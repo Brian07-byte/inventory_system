@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Tailwind & Bootstrap Styles -->
+<style>
+    /* Custom Container */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Image Styling */
+    .product-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    /* Button Styles */
+    .btn-primary {
+        background-color: #1d4ed8;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #1e40af;
+    }
+
+    .btn-danger {
+        background-color: #dc2626;
+    }
+
+    .btn-danger:hover {
+        background-color: #b91c1c;
+    }
+
+    .btn-secondary {
+        background-color: #64748b;
+    }
+
+    .btn-secondary:hover {
+        background-color: #475569;
+    }
+
+    /* Quantity Input */
+    input[type="number"] {
+        width: 60px;
+        text-align: center;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        padding: 4px;
+    }
+
+    /* Empty Cart Styling */
+    .empty-cart {
+        font-size: 1.5rem;
+        text-align: center;
+        color: #777;
+        margin-top: 40px;
+    }
+</style>
+
+<div class="container my-5">
+    <h2 class="text-center mb-4 font-bold text-3xl text-gray-700">Your Cart</h2>
+
+    {% if cart.cart_items.all %}
+        <div class="cart-table shadow-lg rounded-lg p-4 bg-white">
+            <table class="table table-striped">
+                <thead class="thead-dark bg-gray-800 text-white">
+                    <tr>
+                        <th>Image</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart.cart_items.all %}
+                        <tr class="text-center">
+                            <!-- Product Image -->
+                            <td>
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="product-image shadow-md">
+                            </td>
+
+                            <!-- Product Name -->
+                            <td class="font-semibold text-gray-700">{{ item.product.name }}</td>
+
+                            <!-- Quantity Form -->
+                            <td>
+                                <form method="POST" action="{% url 'order:update_cart_item' item.id %}">
+                                    {% csrf_token %}
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" required class="form-control w-25 d-inline">
+                                    <button type="submit" class="btn btn-primary btn-sm ml-2 px-3 py-1">Update</button>
+                                </form>
+                            </td>
+
+                            <!-- Price & Total -->
+                            <td class="text-green-600 font-semibold">KSH {{ item.product.price }}</td>
+                            <td class="text-blue-600 font-semibold">KSH {{ item.total_price }}</td>
+
+                            <!-- Remove Button -->
+                            <td>
+                                <a href="{% url 'order:remove_from_cart' item.id %}" class="btn btn-danger btn-sm px-3 py-1">Remove</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Cart Total and Buttons -->
+            <div class="total-price flex justify-between items-center mt-6">
+                <h3 class="text-xl font-bold text-gray-700">Total: KSH {{ total_price }}</h3>
+                <div class="flex space-x-4">
+                    <a href="{% url 'inventory:browse_products' %}" class="btn btn-secondary px-4 py-2 text-white rounded-md">Continue Shopping</a>
+                    <a href="{% url 'orders:checkout_view' %}" class="btn btn-success px-4 py-2 text-blue-500 rounded-md">Proceed to Checkout</a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p class="empty-cart">Your cart is empty.</p>
+        <div class="text-center mt-6">
+            <a href="{% url 'inventory:browse_products' %}" class="btn btn-primary px-4 py-2 text-white rounded-md">Continue Shopping</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

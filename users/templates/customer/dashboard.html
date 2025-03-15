@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2>Welcome to Your Dashboard</h2>
+
+    <nav>
+        <ul>
+            <li><a href="{% url 'inventory:browse_products' %}">Browse Products</a></li>
+
+
+            <!-- Add more links as necessary -->
+        </ul>
+    </nav>
+
+    <div class="customer-products">
+        <!-- Include product list section here if necessary -->
+    </div>
+</div>
+{% endblock %}

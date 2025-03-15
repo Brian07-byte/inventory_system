@@ -1,0 +1,39 @@
+{% extends 'base.html' %} <!-- Assuming base template has customer dashboard structure -->
+
+{% block content %}
+<div class="container mx-auto mt-12 px-4">
+
+    <!-- Search and Filter Section -->
+    <div class="mb-8">
+        <form method="GET" action="{% url 'inventory:browse_products' %}" class="flex flex-wrap gap-4 items-center">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search products..." class="p-3 rounded-lg border-2 border-gray-300 w-full sm:w-80 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            
+            <select name="category" class="p-3 rounded-lg border-2 border-gray-300 w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Select Category</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}" {% if category.id == selected_category %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">Search</button>
+        </form>
+    </div>
+
+    <!-- Product Display Section -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {% for product in products %}
+            <div class="border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-56 object-cover rounded-t-lg">
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold text-gray-800">{{ product.name }}</h3>
+                    <p class="text-gray-600 text-sm mt-2">{{ product.description|truncatewords:10 }}</p>
+                    <p class="font-bold text-xl text-blue-600 mt-4">{{ product.price }} KSH</p>
+                    <a href="{% url 'inventory:product_detail' product.id %}" class="inline-block mt-4 text-blue-500 hover:underline">View Details</a>
+                </div>
+            </div>
+        {% empty %}
+            <p class="col-span-3 text-center text-gray-600">No products found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+<style>
+    .product-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .btn-lg {
+        padding: 12px 20px;
+        font-size: 1.1rem;
+    }
+
+    .btn i {
+        font-size: 1.3rem;
+        margin-right: 8px;
+    }
+
+    .img-fluid {
+        max-width: 100%;
+        height: auto;
+        border-radius: 15px;
+    }
+
+</style>
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-6 text-center">
+            <img src="{{ product.image.url }}" class="img-fluid rounded shadow-lg" alt="{{ product.name }}" style="max-height: 400px; object-fit: contain;">
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-md-6">
+            <h2 class="product-title">{{ product.name }}</h2>
+            <p class="text-muted">Category: {{ product.category.name }}</p>
+            <h4 class="text-success">KSH {{ product.price }}</h4>
+            <p>{{ product.description }}</p>
+            <p>Stock Available: <strong>{{ product.get_available_stock }}</strong></p>
+
+            <!-- Add to Cart Form -->
+            <form action="{% url 'order:add_to_cart' product.id %}" method="POST">
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                    <input type="number" name="quantity" class="form-control" value="1" min="1" max="{{ product.get_available_stock }}" required>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                </div>
+            </form>
+
+            <!-- Back Button -->
+            <a href="{% url 'inventory:browse_products' %}" class="btn btn-secondary btn-lg">
+                <i class="bi bi-arrow-left-circle"></i> Back
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

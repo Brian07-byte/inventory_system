@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Sales Report</h2>
+<table border="1">
+    <tr>
+        <th>Product</th>
+        <th>Order</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Sale Date</th>
+        <th>Total Value</th>
+    </tr>
+    {% for sale in sales %}
+    <tr>
+        <td>{{ sale.product.name }}</td>
+        <td>{{ sale.order.id }}</td>
+        <td>{{ sale.quantity }}</td>
+        <td>${{ sale.price }}</td>
+        <td>{{ sale.sale_date }}</td>
+        <td>${{ sale.total_sale_value }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<h3>Total Revenue: ${{ total_revenue }}</h3>
+{% endblock %}
