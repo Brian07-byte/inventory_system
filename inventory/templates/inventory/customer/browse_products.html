@@ -1,38 +1,190 @@
 {% extends 'base.html' %} <!-- Assuming base template has customer dashboard structure -->
 
+
 {% block content %}
+<style>
+    /* 🌟 General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f9fafb;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* 🌟 Container */
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* 🌟 Search and Filter Section */
+form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+input, select {
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+    font-size: 16px;
+    transition: 0.3s ease;
+}
+
+input:focus, select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+}
+
+button {
+    background: #007bff;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+    border: none;
+}
+
+button:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+/* 🌟 Product Grid */
+.grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+/* 🌟 Product Card */
+.product-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.product-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-bottom: 3px solid #007bff;
+}
+
+.product-card .details {
+    padding: 15px;
+}
+
+.product-card h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.product-card p {
+    font-size: 14px;
+    color: #666;
+}
+
+.product-card .price {
+    font-size: 18px;
+    font-weight: bold;
+    color: #007bff;
+    margin-top: 10px;
+}
+
+.product-card a {
+    display: inline-block;
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.product-card a:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+/* 🌟 No Products Found */
+.no-products {
+    text-align: center;
+    font-size: 18px;
+    color: #777;
+    margin-top: 30px;
+}
+
+/* 🌟 Responsive Design */
+@media (max-width: 768px) {
+    form {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px;
+    }
+
+    input, select, button {
+        width: 100%;
+    }
+
+    .product-card img {
+        height: 180px;
+    }
+}
+
+</style>
 <div class="container mx-auto mt-12 px-4">
 
-    <!-- Search and Filter Section -->
+    <!-- 🔎 Search and Filter Section -->
     <div class="mb-8">
-        <form method="GET" action="{% url 'inventory:browse_products' %}" class="flex flex-wrap gap-4 items-center">
-            <input type="text" name="q" value="{{ query }}" placeholder="Search products..." class="p-3 rounded-lg border-2 border-gray-300 w-full sm:w-80 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <form method="GET" action="{% url 'inventory:browse_products' %}" class="search-filter">
+            <input type="text" name="q" value="{{ query }}" placeholder="🔍 Search products..." class="input-field">
             
-            <select name="category" class="p-3 rounded-lg border-2 border-gray-300 w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">Select Category</option>
+            <select name="category" class="input-field">
+                <option value="">📂 Select Category</option>
                 {% for category in categories %}
                     <option value="{{ category.id }}" {% if category.id == selected_category %}selected{% endif %}>{{ category.name }}</option>
                 {% endfor %}
             </select>
 
-            <button type="submit" class="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">Search</button>
+            <button type="submit" class="search-btn">Search</button>
         </form>
     </div>
 
-    <!-- Product Display Section -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <!-- 📦 Product Display Section -->
+    <div class="grid">
         {% for product in products %}
-            <div class="border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-56 object-cover rounded-t-lg">
-                <div class="p-4">
-                    <h3 class="text-lg font-semibold text-gray-800">{{ product.name }}</h3>
-                    <p class="text-gray-600 text-sm mt-2">{{ product.description|truncatewords:10 }}</p>
-                    <p class="font-bold text-xl text-blue-600 mt-4">{{ product.price }} KSH</p>
-                    <a href="{% url 'inventory:product_detail' product.id %}" class="inline-block mt-4 text-blue-500 hover:underline">View Details</a>
+            <div class="product-card">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                <div class="details">
+                    <h3>{{ product.name }}</h3>
+                    <p>{{ product.description|truncatewords:10 }}</p>
+                    <p class="price">{{ product.price }} KSH</p>
+                    <a href="{% url 'inventory:product_detail' product.id %}">View Details →</a>
                 </div>
             </div>
         {% empty %}
-            <p class="col-span-3 text-center text-gray-600">No products found.</p>
+            <p class="no-products">No products found. 😔</p>
         {% endfor %}
     </div>
 </div>

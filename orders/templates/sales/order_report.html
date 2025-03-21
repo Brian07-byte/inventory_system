@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .report-container {
+        width: 90%;
+        max-width: 1000px;
+        margin: 20px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        color: #007bff;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .summary-box {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .summary-box div {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        flex: 1;
+        margin: 5px;
+    }
+
+    .summary-box div h4 {
+        margin: 0;
+        color: #007bff;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+    }
+
+    tr:nth-child(even) {
+        background: #f9f9f9;
+    }
+
+    .download-btn {
+        display: block;
+        margin: 20px auto;
+        width: 200px;
+        text-align: center;
+        padding: 10px;
+        background: #28a745;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+
+    .download-btn:hover {
+        background: #218838;
+    }
+</style>
+
+<div class="report-container">
+    <h2>📊 Order Report</h2>
+
+    <div class="summary-box">
+        <div>
+            <h4>Total Orders</h4>
+            <p>{{ total_orders }}</p>
+        </div>
+        <div>
+            <h4>Total Revenue</h4>
+            <p>Ksh{{ total_revenue }}</p>
+        </div>
+        <div>
+            <h4>Pending Orders</h4>
+            <p>{{ pending_orders }}</p>
+        </div>
+        <div>
+            <h4>Processing Orders</h4>
+            <p>{{ processing_orders }}</p>
+        </div>
+        <div>
+            <h4>Completed Orders</h4>
+            <p>{{ completed_orders }}</p>
+        </div>
+        <div>
+            <h4>Canceled Orders</h4>
+            <p>{{ canceled_orders }}</p>
+        </div>
+    </div>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Date</th>
+        </tr>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.customer_name }}</td>
+            <td>{{ order.status }}</td>
+            <td>Ksh{{ order.total_amount }}</td>
+            <td>{{ order.created_at }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="{% url 'orders:generate_order_report_pdf' %}" class="download-btn">📄 Download PDF Report</a>
+</div>
+
+{% endblock %}

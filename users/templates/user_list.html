@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+      /* User List Styles */
+.user-list-container {
+  margin-top: 20px;
+}
+
+.user-list-container h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.user-list-container a {
+  text-decoration: none;
+  color: #3498db;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+.user-list-container a:hover {
+  text-decoration: underline;
+}
+
+.user-list-container ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.user-list-container ul li {
+  background-color: #f9f9f9;
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.user-list-container ul li a {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.user-list-container ul li a:hover {
+  color: #c0392b;
+}
+
+/* Empty list message styles */
+.user-list-container ul li.no-users {
+  color: #7f8c8d;
+  font-style: italic;
+  text-align: center;
+}
+
+.user-list-container .create-user-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #2ecc71;
+  color: white;
+  border-radius: 5px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.user-list-container .create-user-btn:hover {
+  background-color: #27ae60;
+}
+
+</style>
+  <div class="user-list-container">
+    <h1>User List</h1>
+    <a href="{% url 'user_create' %}" class="create-user-btn">Create User</a>
+    
+    <ul>
+      {% for user in users %}
+        <li>
+          <strong>{{ user.username }}</strong> - {{ user.role }}
+          <a href="{% url 'user_update' user.pk %}">Edit</a>
+          <a href="{% url 'user_delete' user.pk %}">Delete</a>
+        </li>
+      {% empty %}
+        <li class="no-users">No users found.</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

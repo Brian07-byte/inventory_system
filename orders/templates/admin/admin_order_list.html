@@ -1,125 +1,238 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <style>
-    /* Scoped Styles for Order Page */
-    .order-page {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        background-color: #f8f9fa;
-        padding: 20px;
+    /* General Styling */
+.order-container {
+    max-width: 90%;
+    margin: 30px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+}
+
+.order-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Search & Filter */
+.order-filters {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.order-filters input,
+.order-filters select {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.order-filters input {
+    width: 60%;
+}
+
+.order-filters select {
+    width: 35%;
+}
+
+/* Order Table */
+#orderTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#orderTable thead {
+    background: #f8f9fa;
+}
+
+#orderTable th,
+#orderTable td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#orderTable th {
+    cursor: pointer;
+}
+
+#orderTable tbody tr:hover {
+    background: #f1f1f1;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.status-badge.completed {
+    background: #28a745;
+    color: white;
+}
+
+.status-badge.pending {
+    background: #ffc107;
+    color: black;
+}
+
+.status-badge.processing {
+    background: #17a2b8;
+    color: white;
+}
+
+.status-badge.refunded {
+    background: #dc3545;
+    color: white;
+}
+
+/* Action Buttons */
+.btn {
+    padding: 8px 12px;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 5px;
+    transition: 0.3s;
+    margin: 2px;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+    border: none;
+}
+
+.btn-warning {
+    background: #ffc107;
+    color: black;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .order-filters {
+        flex-direction: column;
+        gap: 10px;
     }
 
-    .order-list-container {
-        background: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        max-width: 850px;
+    .order-filters input,
+    .order-filters select {
         width: 100%;
-        text-align: center;
-        border-top: 5px solid #007bff;
     }
 
-    .order-list-container h2 {
-        color: #007bff;
-        font-weight: bold;
-        font-size: 24px;
-        margin-bottom: 15px;
+    #orderTable th,
+    #orderTable td {
+        font-size: 12px;
+        padding: 8px;
     }
-
-    /* Table Styling */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;
-    }
-
-    table, th, td {
-        border: 1px solid #ddd;
-    }
-
-    th, td {
-        padding: 12px;
-        text-align: center;
-    }
-
-    th {
-        background-color: #007bff;
-        color: white;
-    }
-
-    /* Alternating Row Colors */
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-
-    /* Action Buttons */
-    .action-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-    }
-
-    .action-buttons a {
-        text-decoration: none;
-        font-weight: bold;
-        padding: 6px 12px;
-        border-radius: 6px;
-        transition: 0.3s ease-in-out;
-    }
-
-    .view-btn {
-        background: #17a2b8;
-        color: white;
-    }
-
-    .update-btn {
-        background: #28a745;
-        color: white;
-    }
-
-    .delete-btn {
-        background: #dc3545;
-        color: white;
-    }
-
-    .action-buttons a:hover {
-        transform: scale(1.05);
-        opacity: 0.9;
-    }
+}
 
 </style>
+<div class="order-container">
+    <h2>📦 Order Management</h2>
 
-<!-- Order Page Wrapper -->
-<div class="order-page">
-    <div class="order-list-container">
-        <h2>🛒 Order List</h2>
-        <table>
+    <!-- Search & Filter -->
+    <div class="order-filters">
+        <input type="text" id="search" placeholder="🔍 Search Order ID or Username" value="{{ search_query }}">
+        <select id="statusFilter">
+            <option value="">📌 All Statuses</option>
+            <option value="Pending" {% if status_filter == "Pending" %}selected{% endif %}>🕒 Pending</option>
+            <option value="Processing" {% if status_filter == "Processing" %}selected{% endif %}>🚀 Processing</option>
+            <option value="Completed" {% if status_filter == "Completed" %}selected{% endif %}>✅ Completed</option>
+            <option value="Completed" {% if status_filter == "Paid" %}selected{% endif %}>✅ Paid</option>
+            <option value="Refunded" {% if status_filter == "Refunded" %}selected{% endif %}>💰 Refunded</option>
+        </select>
+    </div>
+
+    <table id="orderTable">
+        <thead>
             <tr>
-                <th>ID</th>
-                <th>Customer</th>
+                <th onclick="sortTable(0)"># Order ID 🔽</th>
+                <th onclick="sortTable(1)">Customer 🔽</th>
+                <th>Amount</th>
                 <th>Status</th>
-                <th>Total</th>
                 <th>Date</th>
                 <th>Actions</th>
             </tr>
+        </thead>
+        <tbody>
             {% for order in orders %}
             <tr>
                 <td>{{ order.id }}</td>
-                <td>{{ order.customer_name }}</td>
-                <td>{{ order.status }}</td>
-                <td>${{ order.total_amount }}</td>
+                <td>{{ order.user.username }}</td>
+                <td>KSH {{ order.total_amount }}</td>
+                <td>
+                    <span class="status-badge {% if order.status == 'Completed' %}completed{% elif order.status == 'Pending' %}pending{% elif order.status == 'Processing' %}processing{% else %}refunded{% endif %}">
+                        {{ order.status }}
+                    </span>
+                </td>
                 <td>{{ order.created_at }}</td>
-                <td class="action-buttons">
-                    <a href="{% url 'order:admin_order_detail' order.id %}" class="view-btn">View</a>
-                    <a href="{% url 'order:update_order_status' order.id %}" class="update-btn">Update</a>
-                    <a href="{% url 'order:delete_order' order.id %}" class="delete-btn">Delete</a>
+                <td>
+                    <a href="{% url 'orders:admin_order_detail' order.id %}" class="btn btn-primary">View</a>
+                    <a href="{% url 'orders:update_order_status' order.id %}" class="btn btn-warning">Update</a>
+                    <a href="{% url 'orders:delete_order' order.id %}" class="btn btn-danger">Delete</a>
                 </td>
             </tr>
+            {% empty %}
+            <tr><td colspan="6">❌ No orders found.</td></tr>
             {% endfor %}
-        </table>
-    </div>
+        </tbody>
+    </table>
 </div>
+
+<script>
+document.getElementById('search').addEventListener('keyup', function() {
+    let filter = this.value.toLowerCase();
+    let rows = document.querySelectorAll("#orderTable tbody tr");
+
+    rows.forEach(row => {
+        let orderID = row.cells[0].innerText.toLowerCase();
+        let customer = row.cells[1].innerText.toLowerCase();
+        row.style.display = (orderID.includes(filter) || customer.includes(filter)) ? "" : "none";
+    });
+});
+
+document.getElementById('statusFilter').addEventListener('change', function() {
+    let filter = this.value.toLowerCase();
+    let rows = document.querySelectorAll("#orderTable tbody tr");
+
+    rows.forEach(row => {
+        let status = row.cells[3].innerText.toLowerCase();
+        row.style.display = (filter === "" || status.includes(filter)) ? "" : "none";
+    });
+});
+
+function sortTable(n) {
+    let table = document.getElementById("orderTable");
+    let rows = Array.from(table.rows).slice(1);
+    let asc = table.rows[0].cells[n].classList.toggle("asc");
+
+    rows.sort((rowA, rowB) => {
+        let cellA = rowA.cells[n].innerText;
+        let cellB = rowB.cells[n].innerText;
+        return asc ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+    });
+
+    rows.forEach(row => table.appendChild(row));
+}
+</script>
 {% endblock %}

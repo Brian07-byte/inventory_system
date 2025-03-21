@@ -1,8 +1,255 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% block content %}
-<div class="container mx-auto text-center py-10">
-    <h1 class="text-4xl font-bold text-gray-800">Welcome to Our E-Commerce Inventory System</h1>
-    <p class="text-lg text-gray-600 mt-4">Manage inventory, orders, and reports with ease.</p>
-</div>
-{% endblock %}
+        /* Hero Section */
+        .hero {
+            background-image: url('https://images.unsplash.com/photo-1573497019671-6f59b52d7042?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhY3J8M3x8bG9uZG9uJTIwY2l0eXxlbnwwfHx8fDE2NTg5MjY5MjQ&ixlib=rb-1.2.1&q=80&w=1080');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 100px 0;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero a {
+            background-color: #fbbf24;
+            color: #333;
+            padding: 15px 30px;
+            font-size: 1.25rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .hero a:hover {
+            background-color: #f59e0b;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 20px;
+            background-color: #f9fafb;
+            text-align: center;
+        }
+
+        .features h2 {
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            color: #333;
+        }
+
+        .features .feature {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .features .feature img {
+            width: 60px;
+            margin-bottom: 20px;
+        }
+
+        .features .feature h3 {
+            font-size: 1.75rem;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+
+        .features .feature p {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        /* Testimonials Section */
+        .testimonials {
+            background-color: #111827;
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .testimonials h2 {
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+        }
+
+        .testimonials .testimonial {
+            background-color: #374151;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            margin: 0 20px;
+            max-width: 400px;
+        }
+
+        .testimonials .testimonial p {
+            font-style: italic;
+            color: #d1d5db;
+            font-size: 1.125rem;
+        }
+
+        .testimonials .testimonial h3 {
+            font-size: 1.25rem;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        .testimonials .testimonial p:last-child {
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        /* Call to Action */
+        .cta {
+            background-color: #2563eb;
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .cta p {
+            font-size: 1.25rem;
+            margin-bottom: 40px;
+        }
+
+        .cta a {
+            background-color: #fbbf24;
+            color: #333;
+            padding: 15px 30px;
+            font-size: 1.25rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .cta a:hover {
+            background-color: #f59e0b;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #111827;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .footer .social-icons a {
+            color: #d1d5db;
+            font-size: 1.75rem;
+            margin: 0 15px;
+            transition: 0.3s;
+        }
+
+        .footer .social-icons a:hover {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Hero Section with Online Image Banner -->
+<section class="hero">
+    <h1>Welcome to Our SmartStore Inventory System</h1>
+    <p>Manage inventory, track orders, and view insightful reports all in one place.</p>
+    <a href="{% url 'login' %}">Get Started</a>
+</section>
+
+<!-- Features Section with Icons -->
+<section id="features" class="features">
+    <h2>Why Choose Our System?</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+        <!-- Feature 1 -->
+        <div class="feature">
+            <img src="https://img.icons8.com/ios/452/box.png" alt="Inventory Management Icon">
+            <h3>Inventory Management</h3>
+            <p>Easily track and manage stock levels, and prevent shortages with real-time updates.</p>
+        </div>
+        <!-- Feature 2 -->
+        <div class="feature">
+            <img src="https://img.icons8.com/ios/452/online-order.png" alt="Order Management Icon">
+            <h3>Order Management</h3>
+            <p>Seamlessly manage orders, process shipments, and keep customers satisfied.</p>
+        </div>
+        <!-- Feature 3 -->
+        <div class="feature">
+            <img src="https://img.icons8.com/ios/452/report.png" alt="Reporting Icon">
+            <h3>Detailed Reporting</h3>
+            <p>Get insightful reports on sales, inventory turnover, and more to make data-driven decisions.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials">
+    <h2>What Our Clients Say</h2>
+    <div class="flex justify-center space-x-8">
+        <div class="testimonial">
+            <p>"The best system we've ever used! It's easy to track our inventory and manage orders."</p>
+            <h3>Merry Mwenda</h3>
+            <p>CEO, SmartStore</p>
+        </div>
+        <div class="testimonial">
+            <p>"Excellent reporting features that help us make quick and informed decisions."</p>
+            <h3>Brian Gitobu</h3>
+            <p>manager, SmartStore.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Call-to-Action Section -->
+<section class="cta">
+    <h2>Ready to Take Your Business to the Next Level?</h2>
+    <p>Start managing your inventory and orders today, and gain valuable insights to grow your business.</p>
+    <a href="#signup">Sign Up Now</a>
+</section>
+
+<!-- Footer Section with Social Media Links -->
+<footer class="footer">
+    <div class="social-icons">
+        <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+        <a href="#" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+    </div>
+    <p>&copy; 2025 E-Commerce Inventory System | All Rights Reserved.</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+      /* Payment Table Styling */
+.payment-container {
+    max-width: 95%;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background: #2c3e50;
+    color: #fff;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+tr:hover {
+    background: #dfe6e9;
+    transition: 0.3s ease;
+}
+
+/* Payment Status Badges */
+.status-badge {
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.paid {
+    background: #2ecc71;
+    color: white;
+}
+
+.pending {
+    background: #e74c3c;
+    color: white;
+}
+
+/* Filter and Search */
+.payment-filters {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.payment-filters input, .payment-filters select {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    table {
+        font-size: 14px;
+    }
+
+    th, td {
+        padding: 8px;
+    }
+
+    .payment-filters {
+        flex-direction: column;
+    }
+
+    .payment-filters input, .payment-filters select {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+</style>
+<div class="payment-container">
+    <h2>All Payments</h2>
+
+    <!-- Filters & Search -->
+    <div class="payment-filters">
+        <input type="text" id="search" placeholder="Search by Order ID or Customer">
+        <select id="statusFilter">
+            <option value="">All Statuses</option>
+            <option value="Paid">Paid</option>
+            <option value="Pending">Pending</option>
+        </select>
+    </div>
+
+    <table id="paymentTable">
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">Order ID 🔽</th>
+                <th onclick="sortTable(1)">Customer 🔽</th>
+                <th onclick="sortTable(2)">Amount 🔽</th>
+                <th>Method</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.order.id }}</td>
+                <td>{{ payment.user.username }}</td>
+                <td>KSH {{ payment.amount }}</td>
+                <td>{{ payment.payment_method }}</td>
+                <td>
+                    <span class="status-badge {% if payment.payment_status %}paid{% else %}pending{% endif %}">
+                        {% if payment.payment_status %}✅ Paid{% else %}❌ Pending{% endif %}
+                    </span>
+                </td>
+                <td>{{ payment.payment_date }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">No payments recorded.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- JavaScript for Filters & Sorting -->
+<script>
+document.getElementById('search').addEventListener('keyup', function() {
+    let filter = this.value.toLowerCase();
+    let rows = document.querySelectorAll("#paymentTable tbody tr");
+
+    rows.forEach(row => {
+        let orderID = row.cells[0].innerText.toLowerCase();
+        let customer = row.cells[1].innerText.toLowerCase();
+        row.style.display = (orderID.includes(filter) || customer.includes(filter)) ? "" : "none";
+    });
+});
+
+document.getElementById('statusFilter').addEventListener('change', function() {
+    let filter = this.value.toLowerCase();
+    let rows = document.querySelectorAll("#paymentTable tbody tr");
+
+    rows.forEach(row => {
+        let status = row.cells[4].innerText.toLowerCase();
+        row.style.display = (filter === "" || status.includes(filter)) ? "" : "none";
+    });
+});
+
+function sortTable(n) {
+    let table = document.getElementById("paymentTable");
+    let rows = Array.from(table.rows).slice(1);
+    let asc = table.rows[0].cells[n].classList.toggle("asc");
+
+    rows.sort((rowA, rowB) => {
+        let cellA = rowA.cells[n].innerText;
+        let cellB = rowB.cells[n].innerText;
+        return asc ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+    });
+
+    rows.forEach(row => table.appendChild(row));
+}
+</script>
+{% endblock %}

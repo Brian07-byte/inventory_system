@@ -1,8 +1,10 @@
 from django.urls import path
 from . import views
+from .views import process_payment, payment_history, admin_payment_list
+from .views import export_orders_csv, export_orders_excel,generate_invoice,order_report,generate_order_report_pdf
 from .views import admin_order_list, admin_order_detail, update_order_status, delete_order
-from .views import payment_view,my_orders
-from .views import manage_payments, payment_details, issue_refund, customer_payments, request_refund
+from .views import my_orders
+
 
 app_name = 'orders'
 
@@ -17,23 +19,28 @@ urlpatterns = [
     path('checkout/', views.checkout_view, name='checkout_view'),  # Checkout view to place an order
     path('order_confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),  # View order confirmation
 
-    path("payment/<int:order_id>/", payment_view, name="payment"),
 
      path('my-orders/', my_orders, name='my_orders'),
 
 
      ##Admin order managemnt
+     path('admin/orders/<int:order_id>/', views.admin_order_detail, name='admin_order_detail'),
      path('admin/orders/', admin_order_list, name='admin_order_list'),
     path('admin/orders/<int:order_id>/', admin_order_detail, name='admin_order_detail'),
     path('admin/orders/<int:order_id>/update/', update_order_status, name='update_order_status'),
     path('admin/orders/<int:order_id>/delete/', delete_order, name='delete_order'),
     
-         # Admin URLs
-    path('admin/manage/', manage_payments, name='manage_payments'),
-    path('admin/payment/<int:payment_id>/', payment_details, name='payment_details'),
-    path('admin/refund/<int:payment_id>/', issue_refund, name='issue_refund'),
+    ###reports
+    path("export/csv/", export_orders_csv, name="export_orders_csv"),
+    path("export/excel/", export_orders_excel, name="export_orders_excel"),
+    path("invoice/<int:order_id>/", generate_invoice, name="generate_invoice"),
+    
+    path('order-report/', order_report, name='order_report'),
+    path('order-report/download/', generate_order_report_pdf, name='generate_order_report_pdf'),
+    
+    ######3payments
+    path("payment/<int:order_id>/", process_payment, name="process_payment"),
+    path("payment-history/", payment_history, name="payment_history"),
+    path("admin/payments/", admin_payment_list, name="admin_payment_list"),
 
-    # Customer URLs
-    path('my-payments/', customer_payments, name='customer_payments'),
-    path('request-refund/<int:payment_id>/', request_refund, name='request_refund'),
 ]

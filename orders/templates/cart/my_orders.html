@@ -1,108 +1,145 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders - Dashboard{% endblock %}
 
 {% block content %}
 <style>
-.orders-container {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 20px;
-    background: #fff;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-}
+    /* Container and Layout */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
 
-h2 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
-}
+    /* Header Styles */
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
 
-.orders-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
+    .dashboard-header h2 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #333;
+    }
 
-.orders-table th, .orders-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
+    /* Order Table */
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
 
-.orders-table th {
-    background: #007bff;
-    color: white;
-    text-transform: uppercase;
-}
+    .order-table th, .order-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
 
-.orders-table tr:nth-child(even) {
-    background: #f9f9f9;
-}
+    .order-table th {
+        background-color: #007bff;
+        color: white;
+    }
 
-.orders-table tr:hover {
-    background: #f1f1f1;
-}
+    .order-table td {
+        background-color: #f9f9f9;
+    }
 
-.status {
-    font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 4px;
-    text-align: center;
-}
+    /* Status Badge */
+    .badge {
+        font-size: 1rem;
+        padding: 8px 15px;
+        border-radius: 20px;
+    }
 
-/* Status colors */
-.status.pending { background: #ffcc00; color: black; }
-.status.processing { background: #17a2b8; color: white; }
-.status.shipped { background: #007bff; color: white; }
-.status.delivered { background: #28a745; color: white; }
-.status.cancelled { background: #dc3545; color: white; }
+    .bg-success {
+        background-color: #28a745;
+        color: #fff;
+    }
 
-.no-orders {
-    text-align: center;
-    font-size: 16px;
-    color: #888;
-    margin-top: 20px;
-}
+    .bg-warning {
+        background-color: #ffc107;
+        color: #fff;
+    }
 
+    .bg-info {
+        background-color: #17a2b8;
+        color: #fff;
+    }
+
+    /* Button Styles */
+    .btn-generate {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 1rem;
+        transition: background-color 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-generate:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-generate:focus {
+        outline: none;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        color: #888;
+        font-size: 1.2rem;
+        margin-top: 40px;
+    }
 </style>
-<div class="orders-container">
-    <h2>📦 My Orders</h2>
 
-    {% if orders %}
-    <table class="orders-table">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Total Amount</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Payment Method</th>
-                <th>Shipping Address</th>
-                <th>Items</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in orders %}
-            <tr>
-                <td>#{{ order.id }}</td>
-                <td>${{ order.total_amount }}</td>
-                <td class="status {{ order.status|lower }}">{{ order.status }}</td>
-                <td>{{ order.created_at|date:"M d, Y - H:i" }}</td>
-                <td>MPesa</td>
-                <td>{{ order.address }}</td>
-                <td>
-                    <ul>
-                        {% for item in order.cart.cart_items.all %}
-                        <li>{{ item.product.name }} (x{{ item.quantity }})</li>
-                        {% endfor %}
-                    </ul>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="container my-5">
+    <div class="dashboard-header">
+        <h2>My Orders</h2>
+        <p>View and manage your orders with ease</p>
+    </div>
+
+    {% if order_details %}
+        <table class="order-table">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Placed On</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Payment Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order_info in order_details %}
+                    <tr>
+                        <td>{{ order_info.order.id }}</td>
+                        <td>{{ order_info.order.created_at|date:"F d, Y" }}</td>
+                        <td>Ksh{{ order_info.order_total }}</td>
+                        <td>
+                            <span class="badge {% if order_info.order_status == 'Paid' %}bg-success{% elif order_info.order_status == 'Processing' %}bg-warning{% else %}bg-info{% endif %}">
+                                {{ order_info.order_status }}
+                            </span>
+                        </td>
+                        <td>{{ order_info.payment_status }}</td>
+                        <td>
+                            <a href="{% url 'orders:generate_invoice' order_id=order_info.order.id %}" class="btn-generate">Generate Invoice</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% else %}
-    <p class="no-orders">You have not placed any orders yet.</p>
+        <div class="empty-state">
+            <p>You have no orders yet.</p>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

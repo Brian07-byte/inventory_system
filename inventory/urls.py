@@ -10,7 +10,7 @@ urlpatterns = [
     path('products/delete/<int:product_id>/', delete_product, name='delete_product'),
     path('products/search/', search_products, name='search_products'),
     path('stock/', view_stock, name='view_stock'),
-    path('stock/update/', update_stock_list, name='update_stock_list'),
+    path('stock/update/', update_stock, name='update_stock'),
     path('stock/update/<int:product_id>/', update_stock, name='update_stock'),
 
     # Supplier
@@ -22,4 +22,8 @@ urlpatterns = [
     # Customer
     path('browse-products/', product_list, name="browse_products"),
     path('products/<int:product_id>/', product_detail, name='product_detail'),
+    
+ 
+    
+    
 ]

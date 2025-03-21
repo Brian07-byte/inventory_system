@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Order Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+        }
+
+        .summary {
+            margin-top: 20px;
+        }
+
+        .summary p {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>Order Report</h2>
+
+    <div class="summary">
+        <p>Total Orders: {{ total_orders }}</p>
+        <p>Total Revenue: Ksh{{ total_revenue }}</p>
+        <p>Pending Orders: {{ pending_orders }}</p>
+        <p>Processing Orders: {{ processing_orders }}</p>
+        <p>Completed Orders: {{ completed_orders }}</p>
+        <p>Canceled Orders: {{ canceled_orders }}</p>
+    </div>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Date</th>
+        </tr>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.customer_name }}</td>
+            <td>{{ order.status }}</td>
+            <td>ksh{{ order.total_amount }}</td>
+            <td>{{ order.created_at }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

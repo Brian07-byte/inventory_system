@@ -10,3 +10,23 @@ class UserRegistrationForm(UserCreationForm):
     class Meta:
         model = CustomUser
         fields = ["username", "email", "password1", "password2", "role"]
+
+
+from django import forms
+from .models import CustomUser
+
+class CustomUserForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'role', 'password']
+        widgets = {
+            'password': forms.PasswordInput(),
+        }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if user.password:
+            user.set_password(user.password)
+        if commit:
+            user.save()
+        return user

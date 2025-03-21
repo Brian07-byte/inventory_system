@@ -24,7 +24,6 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('inventory/', include('inventory.urls', namespace='inventory')),  
     path('orders/', include('orders.urls', namespace='order')),
-    path('reports/', include('reports.urls')),
     path('', include('home.urls')),
 ]
 # Serve media files in development mode

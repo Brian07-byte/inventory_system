@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+      .payment-container {
+            margin: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .payment-container h2 {
+            text-align: center;
+            color: #333;
+        }
+        
+        .order-summary {
+            margin-bottom: 20px;
+        }
+        
+        .payment-method {
+            margin-bottom: 15px;
+        }
+        
+        .payment-method label {
+            font-weight: bold;
+        }
+        
+        .payment-method select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        
+        .payment-instructions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .payment-instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .payment-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .payment-buttons .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .payment-buttons .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .payment-buttons .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            margin-left: 10px;
+        }
+        
+        .payment-buttons .btn:hover {
+            opacity: 0.9;
+        }
+        
+</style>
+    <div class="payment-container">
+        <h2>Payment for Order #{{ order.id }}</h2>
+
+        <div class="order-summary">
+            <p><strong>Order Total:</strong> KSH {{ order.total_amount }}</p>
+            <p><strong>Items in Order:</strong> 
+                {% for item in order.order_items.all %}
+                    <span>{{ item.product.name }} ({{ item.quantity }})</span>
+                    {% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+        </div>
+
+        <p><strong>Total Amount Due: KSH {{ order.total_amount }}</strong></p>
+
+        <p>Please select your preferred payment method and complete the payment below:</p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="payment-method">
+                <label for="payment_method">Select Payment Method:</label>
+                <select name="payment_method" id="payment_method" required>
+                    <option value="MPesa">MPesa</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="PayPal">PayPal</option>
+                </select>
+            </div>
+
+            <div class="payment-instructions">
+                <p><strong>Payment Methods:</strong></p>
+                <ul>
+                    <li><strong>MPesa:</strong> Pay via mobile money using MPesa. You will receive an SMS confirmation.</li>
+                    <li><strong>Credit Card:</strong> Use a major credit card (Visa, MasterCard, etc.) for secure payment.</li>
+                    <li><strong>PayPal:</strong> Securely pay using your PayPal account. International payments accepted.</li>
+                </ul>
+            </div>
+
+            <div class="payment-buttons">
+                <button type="submit" class="btn btn-primary">Pay Now</button>
+                <a href="{% url 'order:cart_detail' %}" class="btn btn-secondary">Back to Cart</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

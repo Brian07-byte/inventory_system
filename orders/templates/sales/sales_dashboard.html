@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Sales Dashboard</h2>
+
+<div>
+    <p><strong>Total Sales:</strong> ${{ total_sales }}</p>
+    <p><strong>Total Orders:</strong> {{ total_orders }}</p>
+</div>
+
+<h3>Sales Per Product</h3>
+<canvas id="productSalesChart"></canvas>
+
+<h3>Sales Per Customer</h3>
+<canvas id="customerSalesChart"></canvas>
+
+<script>
+    const productSalesData = {
+        labels: {{ sales_by_product|safe }},
+        datasets: [{
+            label: "Units Sold",
+            data: {{ sales_by_product|safe }},
+            backgroundColor: "rgba(54, 162, 235, 0.6)",
+        }]
+    };
+
+    new Chart(document.getElementById("productSalesChart"), {
+        type: "bar",
+        data: productSalesData,
+    });
+
+    const customerSalesData = {
+        labels: {{ sales_by_customer|safe }},
+        datasets: [{
+            label: "Total Spent ($)",
+            data: {{ sales_by_customer|safe }},
+            backgroundColor: "rgba(255, 99, 132, 0.6)",
+        }]
+    };
+
+    new Chart(document.getElementById("customerSalesChart"), {
+        type: "pie",
+        data: customerSalesData,
+    });
+</script>
+{% endblock %}

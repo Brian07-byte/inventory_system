@@ -1,9 +1,14 @@
 from django.db import models
+from django.db.models import Sum
+from django.core.exceptions import ValidationError
+from django.utils.timezone import now
+from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.exceptions import ValidationError
 
-# Category model
+# ===========================
+# CATEGORY MODEL
+# ===========================
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
@@ -12,7 +17,9 @@ class Category(models.Model):
         return self.name
 
 
-# Supplier model
+# ===========================
+# SUPPLIER MODEL
+# ===========================
 class Supplier(models.Model):
     name = models.CharField(max_length=100)
     contact_number = models.CharField(max_length=20, null=True, blank=True)
@@ -23,12 +30,14 @@ class Supplier(models.Model):
         return self.name
 
 
-# Product model
+# ===========================
+# PRODUCT MODEL
+# ===========================
 class Product(models.Model):
     name = models.CharField(max_length=100)
     sku = models.CharField(max_length=50, unique=True)
-    category = models.ForeignKey(Category, on_delete=models.PROTECT)
-    supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name="products")
+    supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True, blank=True, related_name="products")
     description = models.TextField(null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to='product_images/', null=True, blank=True)
@@ -39,12 +48,14 @@ class Product(models.Model):
         return self.name
 
     def get_available_stock(self):
-        """Calculate total stock from Stock model"""
-        total_stock = self.stock_entries.aggregate(models.Sum('quantity'))['quantity__sum']
-        return total_stock if total_stock else 0  # Return 0 if None
+        """Calculate total available stock for this product"""
+        total_stock = self.stock_entries.aggregate(total_stock=Sum('quantity'))['total_stock']
+        return total_stock or 0
 
 
-# Stock model
+# ===========================
+# STOCK MODEL
+# ===========================
 class Stock(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='stock_entries')
     quantity = models.PositiveIntegerField()
@@ -55,22 +66,22 @@ class Stock(models.Model):
         return f'{self.product.name} - {self.quantity} in stock'
 
     def update_stock(self, quantity):
-        """Increase stock quantity"""
+        """Increase stock quantity safely"""
         if quantity < 0:
-            raise ValueError("Quantity cannot be negative")
+            raise ValidationError("Quantity cannot be negative")
         self.quantity += quantity
         self.save()
 
     def reduce_stock(self, quantity):
         """Decrease stock quantity safely"""
         if quantity < 0:
-            raise ValueError("Quantity cannot be negative")
+            raise ValidationError("Quantity cannot be negative")
 
         if self.quantity >= quantity:
             self.quantity -= quantity
             self.save()
         else:
-            raise ValidationError(f"Not enough stock available for {self.product.name}.")
+            raise ValidationError(f"Not enough stock for {self.product.name}. Available: {self.quantity}, Requested: {quantity}")
 
     def is_low_stock(self):
         """Check if stock is below the threshold"""
@@ -82,3 +93,57 @@ class Stock(models.Model):
 def create_stock_entry(sender, instance, created, **kwargs):
     if created:
         Stock.objects.create(product=instance, quantity=10)  # Default initial stock
+
+
+# ===========================
+# SALE MODEL
+# ===========================
+class Sale(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='sales')
+    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    quantity_sold = models.PositiveIntegerField()
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    sale_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.customer.username if self.customer else 'Guest'} - {self.quantity_sold} x {self.product.name} on {self.sale_date.strftime('%Y-%m-%d')}"
+
+    def save(self, *args, **kwargs):
+        """Reduce stock when a sale is made and ensure stock updates correctly."""
+        stock_entry = Stock.objects.filter(product=self.product).first()
+
+        if not stock_entry:
+            raise ValidationError(f"Stock entry not found for {self.product.name}.")
+
+        print(f"Attempting to sell {self.quantity_sold} of {self.product.name}. Available stock: {stock_entry.quantity}")
+
+        if stock_entry.quantity >= self.quantity_sold:
+            stock_entry.reduce_stock(self.quantity_sold)
+            super().save(*args, **kwargs)
+            print(f"✅ Sale for {self.product.name} recorded successfully!")
+        else:
+            raise ValidationError(f"❌ Not enough stock for {self.product.name}. Available: {stock_entry.quantity}, Requested: {self.quantity_sold}")
+
+    @staticmethod
+    def get_total_revenue():
+        """Calculate total revenue from all sales."""
+        return Sale.objects.aggregate(total_revenue=Sum('total_price'))['total_revenue'] or 0
+
+    @staticmethod
+    def get_best_selling_products():
+        """Retrieve best-selling products by quantity sold."""
+        return (
+            Sale.objects.values('product__name')
+            .annotate(total_sold=Sum('quantity_sold'))
+            .order_by('-total_sold')
+        )
+
+    @staticmethod
+    def get_sales_by_month():
+        """Get total sales per month for trends."""
+        return (
+            Sale.objects.extra({'month': "strftime('%%Y-%%m', sale_date)"})
+            .values('month')
+            .annotate(total_sales=Sum('total_price'))
+            .order_by('month')
+        )

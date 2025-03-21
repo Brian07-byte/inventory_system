@@ -26,7 +26,9 @@ urlpatterns = [
     path('customer/profile/', lambda request: render(request, 'customer/profile.html'), name='profile'),
     
      # User Management (Admin Only)
-    path('admin/manage-users/', views.manage_users, name='manage_users'),
-    path('admin/change-role/<int:user_id>/<str:new_role>/', views.change_user_role, name='change_user_role'),
-    path('admin/delete-user/<int:user_id>/', views.delete_user, name='delete_user'),
+    # User views
+    path('users/', views.UserListView.as_view(), name='user_list'),
+    path('users/create/', views.UserCreateView.as_view(), name='user_create'),
+    path('users/<int:pk>/update/', views.UserUpdateView.as_view(), name='user_update'),
+    path('users/<int:pk>/delete/', views.UserDeleteView.as_view(), name='user_delete'),
 ]

@@ -97,7 +97,7 @@
         <h3>🛍️ Items Ordered</h3>
         <ul>
             {% for item in order.cart.cart_items.all %}
-            <li>{{ item.product.name }} (x{{ item.quantity }}) - ${{ item.product.price }}</li>
+            <li>{{ item.product.name }} (x{{ item.quantity }}) - KSH{{ item.product.price }}</li>
             {% endfor %}
         </ul>
 

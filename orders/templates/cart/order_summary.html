@@ -15,10 +15,12 @@
             <p><strong>Email:</strong> {{ order.email }}</p>
             <p><strong>Shipping Address:</strong> {{ order.address }}</p>
             <p><strong>Total Amount:</strong> Ksh{{ order.total_amount }}</p>
-            <p><strong>Status:</strong> <span class="badge bg-warning text-dark">{{ order.status }}</span></p>
+            <p><strong>Status:</strong> 
+                <span class="badge bg-warning text-dark">{{ order.status }}</span>
+            </p>
         </div>
 
-        <a href="{% url 'order:payment' order.id %}" class="btn btn-primary mt-4">Proceed to Payment</a>
+        <a href="{% url 'orders:process_payment' order.id %}" class="btn btn-primary mt-4">Proceed to Payment</a>
     </div>
 </div>
 
@@ -28,6 +30,24 @@
         padding: 30px;
         border-radius: 10px;
         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+    }
+
+    .order-details {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 15px;
+    }
+
+    .order-details h5 {
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    .badge {
+        font-size: 1.1rem;
+        padding: 0.5rem 1rem;
     }
 </style>
 {% endblock %}

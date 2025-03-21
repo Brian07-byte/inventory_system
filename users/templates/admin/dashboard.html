@@ -1,173 +1,289 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
 <style>
-    /* General Styles */
-body {
-    font-family: 'Poppins', sans-serif;
-    background: #f4f6f9;
-    margin: 0;
-    padding: 20px;
-    color: #333;
-}
-
-/* Dashboard Container */
-h1 {
-    text-align: center;
-    color: #2c3e50;
-    font-size: 32px;
-    margin-bottom: 20px;
-}
-
-/* Section Styling */
-section {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-/* Headings */
-h2 {
-    color: #3498db;
-    font-size: 24px;
-    margin-bottom: 10px;
-}
-
-/* Report Summary */
-p {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #555;
-}
-
-/* Links */
-a {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 10px 15px;
-    text-decoration: none;
-    color: white;
-    background: #3498db;
-    border-radius: 5px;
-    transition: 0.3s ease-in-out;
-}
-
-a:hover {
-    background: #2980b9;
-}
-
-/* List Styling */
-ul {
-    list-style: none;
-    padding: 0;
-}
-
-li {
-    background: #ecf0f1;
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-/* Button Styling */
-button {
-    border: none;
-    background: #e74c3c;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-}
-
-button:hover {
-    background: #c0392b;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    section {
-        padding: 15px;
+    /* General Dashboard Styles */
+    .dashboard-container {
+        display: flex;
+        flex-direction: column;
+        margin: 20px;
+        background: #f9fafb;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     }
 
-    h1 {
-        font-size: 28px;
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 40px;
     }
 
-    h2 {
+    .dashboard-header h2 {
+        font-size: 36px;
+        color: #333;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .greeting-text {
         font-size: 20px;
+        color: #555;
+        margin-top: 10px;
     }
 
-    p, li {
-        font-size: 14px;
+    /* Stats Summary */
+    .stats-summary {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 40px;
     }
-}
 
+    .stat-item {
+        background: #ffffff;
+        padding: 20px;
+        text-align: center;
+        border-radius: 8px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        width: 22%;
+    }
+
+    .stat-item h3 {
+        font-size: 22px;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .stat-item p {
+        font-size: 18px;
+        color: #007bff;
+        font-weight: 500;
+    }
+
+    /* Chart Section Styling */
+    .chart-container {
+        margin-top: 50px;
+    }
+
+    .chart-container h3 {
+        font-size: 28px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 25px;
+    }
+
+    .chart-box {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .chart-box .chart-item {
+        width: 32%;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-item h4 {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .chart-item canvas {
+        width: 100%;
+        height: 280px;
+    }
+
+    /* Recent Orders and Notifications */
+    .recent-orders,
+    .recent-notifications {
+        background: #ffffff;
+        padding: 25px;
+        margin-top: 30px;
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .recent-orders h3,
+    .recent-notifications h3 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .recent-orders ul,
+    .recent-notifications ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .recent-orders ul li,
+    .recent-notifications ul li {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 12px;
+    }
+
+    .recent-orders ul li a,
+    .recent-notifications ul li span {
+        color: #007bff;
+        font-weight: 500;
+    }
+
+    .recent-orders ul li a:hover,
+    .recent-notifications ul li span:hover {
+        text-decoration: underline;
+        color: #0056b3;
+    }
+
+    /* Buttons */
+    .btn {
+        display: inline-block;
+        padding: 12px 25px;
+        background-color: #007bff;
+        color: #fff;
+        font-size: 18px;
+        text-align: center;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        transform: scale(1.05);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .stats-summary {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-item {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .chart-box {
+            flex-direction: column;
+        }
+
+        .chart-box .chart-item {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    }
 </style>
 
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h2>Admin Dashboard</h2>
+        <p class="greeting-text">Welcome back, Admin!</p>
+    </div>
 
+    <!-- Stats Summary -->
+    <div class="stats-summary">
+        <div class="stat-item">
+            <h3>Total Users</h3>
+            <p>{{ total_users }}</p>
+        </div>
+        <div class="stat-item">
+            <h3>Total Orders</h3>
+            <p>{{ total_orders }}</p>
+        </div>
+        <div class="stat-item">
+            <h3>Total Products</h3>
+            <p>{{ total_products }}</p>
+        </div>
+        <div class="stat-item">
+            <h3>Total Revenue</h3>
+            <p>Ksh {{ total_revenue|floatformat:2 }}</p>
+        </div>
+    </div>
 
-    <h1>Admin Dashboard</h1>
+    <!-- Chart Section -->
+    <div class="chart-box">
+        <!-- Revenue Chart -->
+        <div class="chart-item">
+            <h4>Revenue per Month</h4>
+            <canvas id="revenueChart"></canvas>
+        </div>
+        <!-- Orders Chart -->
+        <div class="chart-item">
+            <h4>Orders per Month</h4>
+            <canvas id="ordersChart"></canvas>
+        </div>
+        <!-- Category Distribution Chart -->
+        <div class="chart-item">
+            <h4>Product Category Distribution</h4>
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
 
-    <section>
-        <h2>Sales Report</h2>
-        <p>{{ sales_report.summary }}</p>
-        <a href="{% url 'sales_report' %}">View Full Report</a>
-    </section>
+    
 
-    <section>
-        <h2>Stock Report</h2>
-        <p>{{ stock_report.summary }}</p>
-        <a href="{% url 'stock_report' %}">View Full Report</a>
-    </section>
+{% endblock %}
 
-    <section>
-        <h2>Category Performance</h2>
-        <ul>
-            {% for report in category_reports %}
-                <li>{{ report.category_name }} - {{ report.performance_score }}</li>
-            {% endfor %}
-        </ul>
-        <a href="">View All Categories</a>
-    </section>
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <section>
-        <h2>Payment Reports</h2>
-        <p>{{ payment_report.summary }}</p>
-        <a href="{% url 'payment_report' %}">View Full Report</a>
-    </section>
+<script>
+    var ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+    var revenueChart = new Chart(ctxRevenue, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [{
+                label: 'Revenue (Ksh)',
+                data: {{ monthly_revenue|safe }},
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true,
+            }]
+        }
+    });
 
-    <section>
-        <h2>Manage Users</h2>
-        <ul>
-            {% for user in users %}
-                <li>{{ user.username }} - {{ user.email }}</li>
-            {% endfor %}
-        </ul>
-        <a href="{% url 'manage_users' %}">Manage Users</a>
-    </section>
+    var ctxOrders = document.getElementById('ordersChart').getContext('2d');
+    var ordersChart = new Chart(ctxOrders, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [{
+                label: 'Orders',
+                data: {{ monthly_orders|safe }},
+                backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                borderColor: 'rgba(255, 159, 64, 1)',
+                borderWidth: 1
+            }]
+        }
+    });
 
-    <section>
-        <h2>Orders</h2>
-        <ul>
-            {% for order in orders %}
-                <li>Order #{{ order.id }} - {{ order.status }}</li>
-            {% endfor %}
-        </ul>
-        <a href="{% url 'order:admin_order_list' %}">View All Orders</a>
-    </section>
-
-    <section>
-        <h2>Inventory</h2>
-        <ul>
-            {% for item in inventory %}
-                <li>{{ item.name }} - {{ item.quantity }} in stock</li>
-            {% endfor %}
-        </ul>
-        <a href="">Manage Inventory</a>
-    </section>
-
-
+    var ctxCategory = document.getElementById('categoryChart').getContext('2d');
+    var categoryChart = new Chart(ctxCategory, {
+        type: 'pie',
+        data: {
+            labels: Object.keys({{ category_data|safe }}),
+            datasets: [{
+                data: Object.values({{ category_data|safe }}),
+                backgroundColor: ['#ff6f61', '#ffcc5c', '#6b5b95', '#f7cac9'],
+            }]
+        }
+    });
+</script>
 {% endblock %}
