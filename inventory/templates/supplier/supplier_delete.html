@@ -1,80 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<style>
-      /* ✅ Centering the Confirmation Box */
-.container {
-    max-width: 500px;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    margin: auto;
-    margin-top: 50px;
-    text-align: center;
-}
+<div class="container mt-5">
+    <div class="alert alert-danger shadow-lg">
+        <h4>⚠️ Confirm Deletion</h4>
+        <p>Are you sure you want to delete <strong>{{ supplier.name }}</strong>?</p>
 
-/* ⚠️ Warning Title */
-.container h2 {
-    font-weight: bold;
-    color: #DC2626;
-    margin-bottom: 15px;
-}
-
-/* ❓ Confirmation Text */
-.container p {
-    font-size: 18px;
-    color: #374151;
-    margin-bottom: 20px;
-}
-
-/* 🗑️ Delete & Cancel Buttons */
-.btn-danger {
-    background: #DC2626;
-    border: none;
-    font-size: 16px;
-    padding: 10px 15px;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-.btn-danger:hover {
-    background: #B91C1C;
-}
-
-.btn-secondary {
-    background: #6B7280;
-    border: none;
-    font-size: 16px;
-    padding: 10px 15px;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-.btn-secondary:hover {
-    background: #4B5563;
-}
-
-/* 📱 Responsive Design */
-@media (max-width: 600px) {
-    .container {
-        width: 90%;
-    }
-
-    .btn-danger, .btn-secondary {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-}
-
-</style>
-<div class="container">
-    <h2 class="text-danger">⚠️ Confirm Deletion</h2>
-    <p>Are you sure you want to delete <strong>{{ supplier.name }}</strong>?</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">🗑️ Yes, Delete</button>
-        <a href="{% url 'inventory:supplier_list' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">🗑️ Delete</button>
+            <a href="{% url 'inventory:supplier_list' %}" class="btn btn-secondary">❌ Cancel</a>
+        </form>
+    </div>
 </div>
 {% endblock %}

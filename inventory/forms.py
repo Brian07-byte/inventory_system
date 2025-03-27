@@ -27,20 +27,20 @@ class CategoryForm(forms.ModelForm):
 class SupplierForm(forms.ModelForm):
     class Meta:
         model = Supplier
-        fields = ['name', 'contact_number', 'email', 'address']
+        fields = ['name', 'supplier_code', 'contact_number', 'email', 'address']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Supplier Name'}),
+            'supplier_code': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Unique Supplier Code'}),
             'contact_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter Contact Number'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter Email Address'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Enter Supplier Address'}),
         }
-        labels = {
-            "name": "Supplier Name",
-            "contact_number": "Contact Number",
-            "email": "Email Address",
-            "address": "Supplier Address",
-        }
 
+    def clean_supplier_code(self):
+        supplier_code = self.cleaned_data.get('supplier_code')
+        if Supplier.objects.filter(supplier_code=supplier_code).exists():
+            raise forms.ValidationError("A supplier with this code already exists. Please enter a unique code.")
+        return supplier_code
 
 # ===========================
 # PRODUCT FORM

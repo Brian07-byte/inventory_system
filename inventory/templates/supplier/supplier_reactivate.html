@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+      /* ========================= */
+/*  🌟 Supplier Management  */
+/* ========================= */
+
+/* ✅ General Styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* ✅ Container */
+.container {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ Table Styling */
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.table thead {
+    background-color: #343a40;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.table th, .table td {
+    padding: 12px;
+    text-align: left;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* ✅ Buttons */
+.btn {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: #007bff;
+    border: none;
+}
+
+.btn-success {
+    background: #28a745;
+    border: none;
+}
+
+.btn-warning {
+    background: #ffc107;
+    border: none;
+    color: #212529;
+}
+
+.btn-danger {
+    background: #dc3545;
+    border: none;
+}
+
+/* ✅ Status Badges */
+.badge {
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+/* ✅ Form Styling */
+.input-group .form-control {
+    border-radius: 5px;
+    padding: 10px;
+}
+
+/* ✅ Hover Effects */
+.btn:hover {
+    opacity: 0.85;
+}
+
+</style>
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <h2 class="text-success">🔄 Reactivate Supplier</h2>
+        <p class="lead">Are you sure you want to reactivate <strong>{{ supplier.name }}</strong>?</p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">✅ Reactivate</button>
+            <a href="{% url 'inventory:supplier_list' %}" class="btn btn-secondary">❌ Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

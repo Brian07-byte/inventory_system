@@ -14,10 +14,11 @@ class CategoryAdmin(admin.ModelAdmin):
 # ============================
 # SUPPLIER ADMIN
 # ============================
-@admin.register(Supplier)
 class SupplierAdmin(admin.ModelAdmin):
-    list_display = ('name', 'contact_number', 'email')
-    search_fields = ('name', 'email')
+    list_display = ('supplier_code', 'name', 'is_active', 'date_added')
+    filter_horizontal = ('products',)  # ✅ Enable multi-select for products
+
+admin.site.register(Supplier, SupplierAdmin)
 
 
 # ============================

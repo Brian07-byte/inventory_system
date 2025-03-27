@@ -18,6 +18,7 @@ urlpatterns = [
     path('suppliers/create/', views.supplier_create, name='supplier_create'),
     path('suppliers/edit/<int:id>/', views.supplier_update, name='supplier_update'),
     path('suppliers/delete/<int:id>/', views.supplier_delete, name='supplier_delete'),
+    path('suppliers/<int:id>/reactivate/', supplier_reactivate, name='supplier_reactivate'),  # Reactivate supplier
 
     # Customer
     path('browse-products/', product_list, name="browse_products"),

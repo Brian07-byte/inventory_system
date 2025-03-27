@@ -2,182 +2,199 @@
 
 {% block content %}
 <style>
-      /* ✅ Container Styling */
+/* 🌟 Supplier Management Styles */
+
+/* ✅ General Page Styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* ✅ Container Styling */
 .container {
-    max-width: 900px;
-    background: white;
-    padding: 20px;
+    background: #ffffff;
+    padding: 25px;
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    margin: auto;
-    margin-top: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* 🏭 Title */
-.container h2 {
-    text-align: center;
-    font-weight: bold;
-    color: #1E3A8A;
-    padding-bottom: 10px;
-}
-
-/* 🔍 Search Bar */
-form.d-flex {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-form input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-.btn-primary {
-    background: #2563EB;
-    border: none;
-    padding: 10px 15px;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-.btn-primary:hover {
-    background: #1E40AF;
-}
-
-/* ➕ Add Supplier Button */
-.btn-success {
-    background: #16a34a;
-    border: none;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-.btn-success:hover {
-    background: #15803d;
-}
-
-/* 📊 Table Styling */
+/* ✅ Table Styling */
 .table {
-    width: 100%;
-    background: white;
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .table thead {
-    background: #1E3A8A;
-    color: white;
+    background-color: #212529;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 14px;
 }
 
-.table tbody tr:hover {
-    background: #f1f5f9;
+.table th, .table td {
+    padding: 12px;
+    text-align: left;
 }
 
-/* ✏️ Edit & 🗑️ Delete Buttons */
-.btn-warning {
-    background: #F59E0B;
+.table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* ✅ Buttons */
+.btn {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-primary {
+    background: #007bff;
     border: none;
-    transition: 0.3s;
 }
 
-.btn-warning:hover {
-    background: #D97706;
+.btn-success {
+    background: #28a745;
+    border: none;
+}
+
+.btn-warning {
+    background: #ffc107;
+    border: none;
+    color: #212529;
 }
 
 .btn-danger {
-    background: #DC2626;
+    background: #dc3545;
     border: none;
-    transition: 0.3s;
 }
 
-.btn-danger:hover {
-    background: #B91C1C;
+.btn-info {
+    background: #17a2b8;
+    border: none;
 }
 
-/* 📱 Responsive Design */
+/* ✅ Button Hover Effects */
+.btn:hover {
+    opacity: 0.85;
+    transform: scale(1.05);
+}
+
+/* ✅ Status Badges */
+.badge {
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+/* ✅ Form Styling */
+.input-group .form-control {
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid #ced4da;
+}
+
+/* ✅ Responsive Design */
 @media (max-width: 768px) {
-    .container {
-        width: 90%;
-    }
-    
-    form.d-flex {
-        flex-direction: column;
-        gap: 5px;
-    }
-    
     .table thead {
         display: none;
     }
 
-    .table tbody tr {
+    .table, .table tbody, .table tr, .table td {
         display: block;
-        margin-bottom: 10px;
-        border: 1px solid #ccc;
+        width: 100%;
+    }
+
+    .table tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
         padding: 10px;
-        border-radius: 5px;
     }
 
-    .table tbody td {
-        display: block;
+    .table td {
         text-align: right;
-        font-size: 16px;
+        position: relative;
+        padding-left: 50%;
     }
 
-    .table tbody td:before {
+    .table td::before {
         content: attr(data-label);
-        float: left;
+        position: absolute;
+        left: 10px;
         font-weight: bold;
         text-transform: uppercase;
-        color: #374151;
     }
 }
-
 </style>
-<div class="container">
-    <h2 class="my-4">🏭 Supplier Management</h2>
-    
-    <!-- 🔍 Search Form -->
-    <form method="GET" action="{% url 'inventory:supplier_list' %}" class="d-flex mb-3">
-        <input type="text" name="q" value="{{ query }}" class="form-control me-2" placeholder="Search by supplier name...">
-        <button type="submit" class="btn btn-primary">🔍 Search</button>
-        {% if query %}
-        <a href="{% url 'inventory:supplier_list' %}" class="btn btn-secondary ms-2">✖ Clear</a>
-        {% endif %}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-primary">📦 Supplier List</h2>
+
+    <!-- ✅ Search Form -->
+    <form method="GET" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control shadow-sm" placeholder="🔍 Search by name, code, or product..." value="{{ query }}">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
     </form>
 
     <a href="{% url 'inventory:supplier_create' %}" class="btn btn-success mb-3">➕ Add Supplier</a>
-    
-    <table class="table table-hover shadow-sm rounded">
-        <thead class="table-dark">
-            <tr>
-                <th>Name</th>
-                <th>Contact</th>
-                <th>Email</th>
-                <th>Address</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for supplier in suppliers %}
-            <tr>
-                <td>{{ supplier.name }}</td>
-                <td>{{ supplier.contact_number }}</td>
-                <td>{{ supplier.email }}</td>
-                <td>{{ supplier.address }}</td>
-                <td>
-                    <a href="{% url 'inventory:supplier_update' supplier.id %}" class="btn btn-warning btn-sm">✏️ Edit</a>
-                    <a href="{% url 'inventory:supplier_delete' supplier.id %}" class="btn btn-danger btn-sm">🗑️ Delete</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" class="text-center">⚠️ No suppliers found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+    <!-- ✅ Supplier Table -->
+    <div class="table-responsive shadow-lg bg-white rounded p-3">
+        <table class="table table-hover table-bordered">
+            <thead class="bg-dark text-white">
+                <tr>
+                    <th>#</th>
+                    <th>Supplier Name</th>
+                    <th>Supplier Code</th>
+                    <th>Contact</th>
+                    <th>Email</th>
+                    <th>Products Supplied</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for supplier in suppliers %}
+                <tr class="{% if not supplier.is_active %}table-danger{% endif %}">
+                    <td data-label="#"> {{ forloop.counter }}</td>
+                    <td data-label="Supplier Name">{{ supplier.name }}</td>
+                    <td data-label="Supplier Code">{{ supplier.supplier_code }}</td>
+                    <td data-label="Contact">{{ supplier.contact_number|default:"N/A" }}</td>
+                    <td data-label="Email">{{ supplier.email|default:"N/A" }}</td>
+                    <td data-label="Products Supplied">
+                        <ul class="list-unstyled">
+                            {% for product in supplier.products.all %}
+                                <li>✔️ {{ product.name }}</li>
+                            {% empty %}
+                                <li class="text-muted">No products assigned</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td data-label="Status">
+                        {% if supplier.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Actions">
+                        <a href="{% url 'inventory:supplier_update' supplier.id %}" class="btn btn-warning btn-sm">✏️ Edit</a>
+                        <a href="{% url 'inventory:supplier_delete' supplier.id %}" class="btn btn-danger btn-sm">🗑️ Delete</a>
+                        {% if not supplier.is_active %}
+                            <a href="{% url 'inventory:supplier_reactivate' supplier.id %}" class="btn btn-info btn-sm">🔄 Reactivate</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted">No suppliers found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

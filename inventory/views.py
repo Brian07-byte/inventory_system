@@ -1,6 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.db import IntegrityError, transaction
+from django.contrib import messages
+from django.db.models import Q
 from django.db.models import Sum
+from django.db import IntegrityError
 from xhtml2pdf import pisa
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import now
@@ -99,34 +103,64 @@ def add_category(request):
 # ✅ View all suppliers with search functionality
 def supplier_list(request):
     query = request.GET.get('q')
-    suppliers = Supplier.objects.filter(name__icontains=query) if query else Supplier.objects.all()
+
+    suppliers = Supplier.objects.all().prefetch_related("products")  # ✅ Optimized query
+
+    if query:
+        suppliers = suppliers.filter(
+            Q(name__icontains=query) | 
+            Q(supplier_code__icontains=query) | 
+            Q(products__name__icontains=query)  # ✅ Search by product name
+        ).distinct()
 
     return render(request, 'supplier/supplier_list.html', {'suppliers': suppliers, 'query': query})
 
 
-# ✅ Add a new supplier
+# ✅ Add a new supplier (Handles unique `supplier_code` & products)
 def supplier_create(request):
     if request.method == 'POST':
         form = SupplierForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Supplier added successfully! ✅")
-            return redirect('inventory:supplier_list')
+            try:
+                with transaction.atomic():  # ✅ Ensure uniqueness
+                    supplier = form.save(commit=False)
+                    if not supplier.supplier_code:
+                        last_supplier = Supplier.objects.select_for_update().order_by('-id').first()
+                        next_id = (last_supplier.id + 1) if last_supplier else 1
+                        supplier.supplier_code = f"SUP-{str(next_id).zfill(3)}"
+                    supplier.save()
+                    form.save_m2m()  # ✅ Save ManyToMany relationships (Products)
+
+                messages.success(request, "Supplier added successfully! ✅")
+                return redirect('inventory:supplier_list')
+
+            except IntegrityError:
+                messages.error(request, "Supplier Code already exists. Please enter a unique supplier code. ❌")
         else:
             messages.error(request, "Error adding supplier. ❌")
     else:
         form = SupplierForm()
+    
     return render(request, 'supplier/supplier_form.html', {'form': form, 'title': 'Add Supplier'})
 
 
-# ✅ Update an existing supplier
+# ✅ Update an existing supplier (Including Products)
 def supplier_update(request, id):
     supplier = get_object_or_404(Supplier, id=id)
+    
     if request.method == 'POST':
         form = SupplierForm(request.POST, instance=supplier)
         if form.is_valid():
-            form.save()
-            return redirect('inventory:supplier_list')
+            try:
+                with transaction.atomic():
+                    form.save()  # ✅ Save supplier and its related products
+                messages.success(request, "Supplier updated successfully! ✅")
+                return redirect('inventory:supplier_list')
+
+            except IntegrityError:
+                messages.error(request, "Supplier Code already exists. Please enter a unique supplier code. ❌")
+        else:
+            messages.error(request, "Error updating supplier. ❌")
     else:
         form = SupplierForm(instance=supplier)
 
@@ -138,9 +172,19 @@ def supplier_delete(request, id):
     supplier = get_object_or_404(Supplier, id=id)
     if request.method == 'POST':
         supplier.delete()
+        messages.success(request, "Supplier deleted successfully! ✅")
         return redirect('inventory:supplier_list')
+    
     return render(request, 'supplier/supplier_delete.html', {'supplier': supplier})
 
+
+# ✅ Reactivate an Inactive Supplier
+def supplier_reactivate(request, pk):
+    supplier = get_object_or_404(Supplier, pk=pk)
+    supplier.is_active = True  # Reactivate the supplier
+    supplier.save()
+    messages.success(request, f"{supplier.name} has been reactivated successfully.")
+    return redirect('inventory:supplier_list')
 
 # ✅ View stock levels
 def view_stock(request):

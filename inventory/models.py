@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Sum
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
@@ -21,14 +21,30 @@ class Category(models.Model):
 # SUPPLIER MODEL
 # ===========================
 class Supplier(models.Model):
+    supplier_code = models.CharField(max_length=50, unique=True, blank=True)  # Unique supplier code
     name = models.CharField(max_length=100)
     contact_number = models.CharField(max_length=20, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     address = models.TextField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)  # Active status
+    date_added = models.DateTimeField(auto_now_add=True)  # Track supplier creation date
+    products = models.ManyToManyField('Product', related_name='suppliers', blank=True)  # ✅ Link to Products
 
     def __str__(self):
-        return self.name
+        return f"{self.supplier_code} - {self.name}"
 
+    def get_products(self):
+        """Retrieve all products supplied by this supplier."""
+        return self.products.all()
+
+    def save(self, *args, **kwargs):
+        """Auto-generate supplier code in an atomic transaction to prevent duplication."""
+        if not self.supplier_code:
+            with transaction.atomic():  # ✅ Ensure uniqueness
+                last_supplier = Supplier.objects.select_for_update().order_by('-id').first()
+                next_id = (last_supplier.id + 1) if last_supplier else 1
+                self.supplier_code = f"SUP-{str(next_id).zfill(3)}"
+        super().save(*args, **kwargs)
 
 # ===========================
 # PRODUCT MODEL
@@ -37,7 +53,7 @@ class Product(models.Model):
     name = models.CharField(max_length=100)
     sku = models.CharField(max_length=50, unique=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name="products")
-    supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True, blank=True, related_name="products")
+    supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True, blank=True, related_name="supplied_products")
     description = models.TextField(null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to='product_images/', null=True, blank=True)
