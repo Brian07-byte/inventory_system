@@ -5,40 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - E-Commerce Inventory</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 flex justify-center items-center h-screen">
+    <style>
+        /* Background Animation */
+        body {
+            background: linear-gradient(135deg, #1E3A8A, #2563EB);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: gradientAnimation 10s infinite alternate;
+        }
 
-    <div class="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 class="text-2xl font-semibold text-center mb-4">Login</h2>
+        @keyframes gradientAnimation {
+            0% { background: linear-gradient(135deg, #1E3A8A, #2563EB); }
+            100% { background: linear-gradient(135deg,rgb(19, 19, 20), #1E3A8A); }
+        }
+
+        /* Glassmorphism Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 380px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Button Animation */
+        .btn {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-card">
+        <h2 class="text-3xl font-bold text-white mb-4">Login</h2>
 
         {% if error %}
-            <p class="text-red-500 text-center">{{ error }}</p>
+            <p class="text-red-300 text-center mb-4">{{ error }}</p>
         {% endif %}
 
         <form method="POST" action="{% url 'login' %}" class="space-y-4">
             {% csrf_token %}
 
             <div>
-                <label class="block text-gray-700">Username:</label>
+                <label class="block text-white text-left font-semibold">Username</label>
                 <input type="text" name="username" required 
-                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/20 text-white placeholder-gray-300">
             </div>
 
             <div>
-                <label class="block text-gray-700">Password:</label>
+                <label class="block text-white text-left font-semibold">Password</label>
                 <input type="password" name="password" required 
-                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/20 text-white placeholder-gray-300">
             </div>
 
             <button type="submit" 
-                class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+                class="btn w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 font-semibold">
                 Login
             </button>
         </form>
 
-        <p class="text-center text-gray-600 mt-4">
+        <p class="text-white mt-4">
             Don't have an account? 
-            <a href="{% url 'signup' %}" class="text-blue-600 hover:underline">Sign Up</a>
+            <a href="{% url 'signup' %}" class="text-yellow-300 font-semibold hover:underline">Sign Up</a>
         </p>
     </div>
 

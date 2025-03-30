@@ -3,253 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landing Page</title>
+    <title>SmartStore - Inventory Made Easy</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a076d05399.js"></script>
     <style>
+        /* General Styles */
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            background-color: #121826;
+            color: white;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            position: fixed;  /* Change from 'sticky' to 'fixed' */
+            top: 0;  /* Stick to the top */
+            left: 0;
+            width: 100%;  /* Full width */
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: #1b2430;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;  /* Ensure it stays above other elements */
+        }
+        
+        .navbar .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #4fa3d1;
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .navbar .nav-links a:hover {
+            color: #4fa3d1;
         }
 
         /* Hero Section */
         .hero {
-            background-image: url('https://images.unsplash.com/photo-1573497019671-6f59b52d7042?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhY3J8M3x8bG9uZG9uJTIwY2l0eXxlbnwwfHx8fDE2NTg5MjY5MjQ&ixlib=rb-1.2.1&q=80&w=1080');
-            background-size: cover;
-            background-position: center;
-            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            padding: 100px 0;
+            height: 90vh;
+            background: linear-gradient(to right, #1b2430, #283a4d);
+            animation: fadeIn 2s ease-in-out;
         }
 
         .hero h1 {
-            font-size: 3.5rem;
+            font-size: 3.2rem;
             font-weight: 700;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            color: #4fa3d1;
+            margin-bottom: 10px;
         }
 
         .hero p {
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeInText 2s forwards 1.2s;
         }
 
-        .hero a {
-            background-color: #fbbf24;
-            color: #333;
-            padding: 15px 30px;
-            font-size: 1.25rem;
+        .hero .cta-btn {
+            background-color: #4fa3d1;
+            color: white;
+            padding: 15px 35px;
+            font-size: 1.2rem;
             text-decoration: none;
             border-radius: 50px;
             font-weight: 600;
             transition: 0.3s;
+            box-shadow: 0px 5px 15px rgba(79, 163, 209, 0.3);
         }
 
-        .hero a:hover {
-            background-color: #f59e0b;
+        .hero .cta-btn:hover {
+            background-color: #3b8cb8;
+            box-shadow: 0px 8px 20px rgba(79, 163, 209, 0.5);
         }
 
         /* Features Section */
         .features {
             padding: 80px 20px;
-            background-color: #f9fafb;
             text-align: center;
+            background: #1b2430;
         }
 
         .features h2 {
             font-size: 2.5rem;
             margin-bottom: 50px;
-            color: #333;
+            color: #4fa3d1;
         }
 
-        .features .feature {
-            background-color: white;
+        .feature-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .feature {
+            background: #283a4d;
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            transition: transform 0.3s ease-in-out;
         }
 
-        .features .feature img {
-            width: 60px;
-            margin-bottom: 20px;
+        .feature:hover {
+            transform: scale(1.05);
         }
 
-        .features .feature h3 {
-            font-size: 1.75rem;
-            color: #1f2937;
+        .feature i {
+            font-size: 3rem;
+            color: #4fa3d1;
             margin-bottom: 15px;
-        }
-
-        .features .feature p {
-            color: #6b7280;
-            font-size: 1rem;
-        }
-
-        /* Testimonials Section */
-        .testimonials {
-            background-color: #111827;
-            color: white;
-            padding: 80px 20px;
-            text-align: center;
-        }
-
-        .testimonials h2 {
-            font-size: 2.5rem;
-            margin-bottom: 50px;
-        }
-
-        .testimonials .testimonial {
-            background-color: #374151;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            margin: 0 20px;
-            max-width: 400px;
-        }
-
-        .testimonials .testimonial p {
-            font-style: italic;
-            color: #d1d5db;
-            font-size: 1.125rem;
-        }
-
-        .testimonials .testimonial h3 {
-            font-size: 1.25rem;
-            margin-top: 20px;
-            font-weight: 600;
-        }
-
-        .testimonials .testimonial p:last-child {
-            color: #9ca3af;
-            font-size: 0.875rem;
-        }
-
-        /* Call to Action */
-        .cta {
-            background-color: #2563eb;
-            color: white;
-            padding: 80px 20px;
-            text-align: center;
-        }
-
-        .cta h2 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-        }
-
-        .cta p {
-            font-size: 1.25rem;
-            margin-bottom: 40px;
-        }
-
-        .cta a {
-            background-color: #fbbf24;
-            color: #333;
-            padding: 15px 30px;
-            font-size: 1.25rem;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-
-        .cta a:hover {
-            background-color: #f59e0b;
         }
 
         /* Footer */
         .footer {
-            background-color: #111827;
+            background-color: #121826;
             color: white;
-            padding: 20px 0;
+            padding: 30px 0;
             text-align: center;
+            margin-top: 50px;
         }
 
-        .footer .social-icons a {
-            color: #d1d5db;
-            font-size: 1.75rem;
-            margin: 0 15px;
+        .social-icons a {
+            color: #4fa3d1;
+            font-size: 2rem;
+            margin: 0 10px;
             transition: 0.3s;
         }
 
-        .footer .social-icons a:hover {
-            color: #fbbf24;
+        .social-icons a:hover {
+            color: #3b8cb8;
         }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInText {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
     </style>
 </head>
 <body>
 
-<!-- Hero Section with Online Image Banner -->
+<!-- Navbar with Two Sections -->
+<nav class="navbar">
+    <div class="logo">SmartStore</div>
+
+    </div>
+</nav>
+
+<!-- Hero Section -->
 <section class="hero">
-    <h1>Welcome to Our SmartStore Inventory System</h1>
-    <p>Manage inventory, track orders, and view insightful reports all in one place.</p>
-    <a href="{% url 'login' %}">Get Started</a>
+    <h1 id="hero-text">SmartStore Inventory</h1>
+    <p>Streamline inventory, orders & reports with ease.</p>
+    <a href="{% url 'login' %}" class="cta-btn">Get Started</a>
 </section>
 
-<!-- Features Section with Icons -->
-<section id="features" class="features">
-    <h2>Why Choose Our System?</h2>
-    <div class="grid md:grid-cols-3 gap-8">
-        <!-- Feature 1 -->
+<!-- Features Section -->
+<section class="features">
+    <h2>Why Choose SmartStore?</h2>
+    <div class="feature-grid">
         <div class="feature">
-            <img src="https://img.icons8.com/ios/452/box.png" alt="Inventory Management Icon">
+            <i class="fas fa-box"></i>
             <h3>Inventory Management</h3>
-            <p>Easily track and manage stock levels, and prevent shortages with real-time updates.</p>
+            <p>Track stock levels in real-time.</p>
         </div>
-        <!-- Feature 2 -->
         <div class="feature">
-            <img src="https://img.icons8.com/ios/452/online-order.png" alt="Order Management Icon">
-            <h3>Order Management</h3>
-            <p>Seamlessly manage orders, process shipments, and keep customers satisfied.</p>
+            <i class="fas fa-shopping-cart"></i>
+            <h3>Order Processing</h3>
+            <p>Automate tracking and processing.</p>
         </div>
-        <!-- Feature 3 -->
         <div class="feature">
-            <img src="https://img.icons8.com/ios/452/report.png" alt="Reporting Icon">
-            <h3>Detailed Reporting</h3>
-            <p>Get insightful reports on sales, inventory turnover, and more to make data-driven decisions.</p>
+            <i class="fas fa-chart-line"></i>
+            <h3>Detailed Reports</h3>
+            <p>Gain insights to boost efficiency.</p>
         </div>
     </div>
 </section>
 
-<!-- Testimonials Section -->
-<section class="testimonials">
-    <h2>What Our Clients Say</h2>
-    <div class="flex justify-center space-x-8">
-        <div class="testimonial">
-            <p>"The best system we've ever used! It's easy to track our inventory and manage orders."</p>
-            <h3>Merry Mwenda</h3>
-            <p>CEO, SmartStore</p>
-        </div>
-        <div class="testimonial">
-            <p>"Excellent reporting features that help us make quick and informed decisions."</p>
-            <h3>Brian Gitobu</h3>
-            <p>manager, SmartStore.</p>
-        </div>
-    </div>
-</section>
-
-<!-- Call-to-Action Section -->
-<section class="cta">
-    <h2>Ready to Take Your Business to the Next Level?</h2>
-    <p>Start managing your inventory and orders today, and gain valuable insights to grow your business.</p>
-    <a href="#signup">Sign Up Now</a>
-</section>
-
-<!-- Footer Section with Social Media Links -->
+<!-- Footer -->
 <footer class="footer">
     <div class="social-icons">
-        <a href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
-        <a href="#" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
     </div>
-    <p>&copy; 2025 E-Commerce Inventory System | All Rights Reserved.</p>
+    <p>&copy; 2025 SmartStore Inventory | All Rights Reserved.</p>
 </footer>
+
+<!-- JavaScript for Hero Animation -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let texts = ["SmartStore Inventory", "Simplify Your Inventory", "Track. Manage. Grow."];
+        let index = 0;
+        setInterval(() => {
+            document.getElementById("hero-text").textContent = texts[index];
+            index = (index + 1) % texts.length;
+        }, 3000);
+    });
+</script>
 
 </body>
 </html>

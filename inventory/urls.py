@@ -24,6 +24,9 @@ urlpatterns = [
     path('browse-products/', product_list, name="browse_products"),
     path('products/<int:product_id>/', product_detail, name='product_detail'),
     
+    path('notifications/', notifications_view, name='notifications'),
+    path('get-notifications/', get_notifications, name='get_notifications'),
+    
  
     
     

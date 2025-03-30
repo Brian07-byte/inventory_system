@@ -283,3 +283,29 @@ def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     return render(request, 'inventory/customer/product_detail.html', {'product': product})
 
+
+
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import Notification
+
+@login_required
+def notifications_view(request):
+    notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')
+    return render(request, 'notifications.html', {'notifications': notifications})
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import Notification
+
+@login_required
+def get_notifications(request):
+    notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-timestamp')[:5]
+    data = {
+        "notifications": [
+            {"message": n.message, "url": "/notifications/"}
+            for n in notifications
+        ],
+        "unread_count": notifications.count()
+    }
+    return JsonResponse(data)

@@ -4,6 +4,11 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from .models import *
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Sum, Count, F
+from django.utils import timezone
+from .models import CustomUser
 from django.utils import timezone
 from datetime import datetime
 from collections import defaultdict
@@ -67,68 +72,135 @@ def dashboard_redirect(request):
 # Customer Dashboard
 @login_required
 def customer_dashboard(request):
-    return render(request, 'customer/dashboard.html')
+    """Customer Dashboard - Displays user-specific order statistics and history"""
+
+    user = request.user  # Get logged-in user
+
+    # **Key Metrics**
+    total_orders = Order.objects.filter(user=user).count()
+    total_spent = Order.objects.filter(user=user, payment_status=True).aggregate(
+        total_spent=Sum('total_amount')
+    )['total_spent'] or 0
+
+    # **Recent Orders (Latest 5)**
+    recent_orders = Order.objects.filter(user=user).order_by('-created_at')[:5]
+
+    # **Orders per Month (for charts)**
+    current_year = now().year
+    orders_per_month = Order.objects.filter(user=user, created_at__year=current_year) \
+        .values_list('created_at__month') \
+        .annotate(order_count=Count('id')) \
+        .order_by('created_at__month')
+
+    # **Spending per Month (for charts)**
+    spending_per_month = Order.objects.filter(user=user, payment_status=True, created_at__year=current_year) \
+        .values_list('created_at__month') \
+        .annotate(total_spent=Sum('total_amount')) \
+        .order_by('created_at__month')
+
+    # **Format Data for Charts**
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    monthly_orders = [0] * 12
+    monthly_spending = [0] * 12
+
+    for month, order_count in orders_per_month:
+        monthly_orders[month - 1] = order_count
+
+    for month, spent in spending_per_month:
+        monthly_spending[month - 1] = spent
+
+    # **Context Data**
+    context = {
+        'total_orders': total_orders,
+        'total_spent': f"KSh {total_spent:,.2f}",  # Currency formatting
+        'recent_orders': recent_orders,
+        'monthly_orders': monthly_orders,
+        'monthly_spending': monthly_spending,
+        'months': months,
+    }
+
+    return render(request, 'customer/dashboard.html', context)
+
 
 @login_required
 @user_passes_test(is_admin)
 def admin_dashboard(request):
-    # Get total counts
+    # **Key Metrics**
     total_users = CustomUser.objects.count()
-    total_orders = Order.objects.count()
+    total_orders = Order.total_orders()  # Count of delivered orders
     total_products = Product.objects.count()
+    total_revenue = Order.total_revenue()  # Revenue from delivered and paid orders
+    total_inventory_stock = Stock.objects.aggregate(total=Sum('quantity'))['total'] or 0
+    low_stock_products = Stock.objects.filter(quantity__lt=10).count()
+    total_suppliers = Supplier.objects.count()
+    total_customers = CustomUser.objects.filter(is_staff=False).count()  # Counting non-admin users as customers
 
-    # Calculate total revenue
-    total_revenue = Payment.objects.aggregate(Sum('amount'))['amount__sum'] or 0
+    # **Recent Data**
+    recent_orders = Order.objects.select_related('user').only(
+        'id', 'created_at', 'status', 'user__username', 'total_amount'
+    ).order_by('-created_at')[:5]
 
-    # Get recent orders
-    recent_orders = Order.objects.all().order_by('-created_at')[:5]
+    recent_inventory_updates = Stock.objects.select_related('product').only(
+        'id', 'product__name', 'quantity', 'last_updated'
+    ).order_by('-last_updated')[:5]
 
-    # Get recent notifications (optional)
-
-    # Revenue per month - Use the correct field for date, such as `payment_date`
-    revenue_per_month = Payment.objects.filter(payment_date__gte=timezone.now().replace(month=1, day=1)) \
-        .values('payment_date__month') \
-        .annotate(total_revenue=Sum('amount')) \
-        .order_by('payment_date__month')
-
-    # Orders per month
-    orders_per_month = Order.objects.filter(created_at__gte=timezone.now().replace(month=1, day=1)) \
-        .values('created_at__month') \
-        .annotate(order_count=Sum('id')) \
+    # **Monthly Revenue (for charts)**
+    current_year = timezone.now().year
+    revenue_per_month = Order.objects.filter(status="Delivered", payment_status=True, created_at__year=current_year) \
+        .values_list('created_at__month') \
+        .annotate(total_revenue=Sum('total_amount')) \
         .order_by('created_at__month')
 
-    # Product category distribution
-    product_categories = Product.objects.values('category__name').annotate(category_count=Sum('id'))
+    # **Orders Per Month (count only delivered orders)**
+    orders_per_month = Order.objects.filter(status="Delivered", created_at__year=current_year) \
+        .values_list('created_at__month') \
+        .annotate(order_count=Count('id')) \
+        .order_by('created_at__month')
 
-    # Prepare data for charts
+    # **Sales Per Product**
+    product_sales = Order.sales_per_product()
+
+    # **Sales Per Customer**
+    customer_sales = Order.sales_per_customer()
+
+    # **Product Categories**
+    product_categories = Product.objects.values('category__name') \
+        .annotate(category_count=Count('id')) \
+        .order_by('-category_count')
+
+    # **Format Data for Charts**
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
     monthly_revenue = [0] * 12
-    for record in revenue_per_month:
-        month_index = record['payment_date__month'] - 1
-        monthly_revenue[month_index] = record['total_revenue']
-
     monthly_orders = [0] * 12
-    for record in orders_per_month:
-        month_index = record['created_at__month'] - 1
-        monthly_orders[month_index] = record['order_count']
-
     category_data = {category['category__name']: category['category_count'] for category in product_categories}
 
+    for month, revenue in revenue_per_month:
+        monthly_revenue[month - 1] = revenue
+
+    for month, order_count in orders_per_month:
+        monthly_orders[month - 1] = order_count
+
+    # **Context Data**
     context = {
         'total_users': total_users,
+        'total_customers': total_customers,
         'total_orders': total_orders,
         'total_products': total_products,
-        'total_revenue': total_revenue,
+        'total_revenue': f"Ksh{total_revenue:,.2f}",  # Formatting as currency
+        'total_inventory_stock': total_inventory_stock,
+        'low_stock_products': low_stock_products,
+        'total_suppliers': total_suppliers,
         'recent_orders': recent_orders,
+        'recent_inventory_updates': recent_inventory_updates,
         'monthly_revenue': monthly_revenue,
         'monthly_orders': monthly_orders,
         'category_data': category_data,
+        'months': months,
+        'product_sales': product_sales,
+        'customer_sales': customer_sales,
     }
 
     return render(request, "admin/dashboard.html", context)
-
-
 # User Profile View
 @login_required
 def user_profile(request):

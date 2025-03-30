@@ -1,241 +1,183 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <style>
-    /* Main dashboard container */
-    .dashboard-container {
-        display: flex;
-        flex-direction: column;
-        margin: 40px;
-        background: #fff;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-        padding: 20px;
-    }
+    /* Dashboard Container */
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
 
-    /* Dashboard header section */
-    .dashboard-header {
-        text-align: center;
-        margin-bottom: 20px;
-    }
+/* Statistic Cards */
+.stat-card {
+    padding: 20px;
+    text-align: center;
+    border-radius: 8px;
+    transition: transform 0.2s ease-in-out;
+}
 
-    .dashboard-header h2 {
-        font-size: 28px;
-        font-weight: bold;
-        color: #333;
-    }
+.stat-card:hover {
+    transform: scale(1.05);
+}
 
-    .greeting-text {
-        font-size: 18px;
-        color: #555;
-    }
+/* Status Badge Styles */
+.status-badge {
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-weight: bold;
+}
 
-    /* Dashboard content layout */
-    .dashboard-content {
-        display: flex;
-        justify-content: space-between;
-    }
+/* Status Colors */
+.status-pending {
+    background-color: #f39c12;
+    color: white;
+}
 
-    /* Sidebar layout and styling */
-    .dashboard-sidebar {
-        width: 250px;
-        background: #f7f7f7;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    }
+.status-processing {
+    background-color: #3498db;
+    color: white;
+}
 
-    /* Profile information inside sidebar */
-    .profile-info {
-        text-align: center;
-        margin-bottom: 20px;
-    }
+.status-delivered {
+    background-color: #2ecc71;
+    color: white;
+}
 
-    .profile-info img {
-        border-radius: 50%;
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-    }
+.status-canceled {
+    background-color: #e74c3c;
+    color: white;
+}
 
-    .profile-info h4 {
-        margin-top: 10px;
-        font-size: 20px;
-        font-weight: bold;
-        color: #333;
-    }
+/* Responsive Table */
+.table-responsive {
+    overflow-x: auto;
+}
 
-    .profile-info p {
-        font-size: 14px;
-        color: #777;
-    }
+/* Card Shadows */
+.card {
+    border: none;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-    /* Sidebar navigation links */
-    .dashboard-sidebar nav ul {
-        list-style-type: none;
-        padding: 0;
-    }
-
-    .dashboard-sidebar nav ul li {
-        margin: 10px 0;
-    }
-
-    .dashboard-sidebar nav ul li a {
-        text-decoration: none;
-        color: #333;
-        font-size: 16px;
-        transition: color 0.3s;
-    }
-
-    .dashboard-sidebar nav ul li a:hover {
-        color: #007bff;
-    }
-
-    /* Main content section styling */
-    .dashboard-main-content {
-        flex-grow: 1;
-        padding: 20px;
-    }
-
-    /* Orders section */
-    .recent-orders, .notifications, .account-settings {
-        margin-bottom: 30px;
-    }
-
-    .recent-orders h3, .notifications h3, .account-settings h3 {
-        font-size: 22px;
-        margin-bottom: 10px;
-        color: #333;
-    }
-
-    /* Orders list */
-    .recent-orders ul, .notifications ul {
-        list-style-type: none;
-        padding: 0;
-    }
-
-    .recent-orders ul li, .notifications ul li {
-        margin: 10px 0;
-    }
-
-    /* Link styling in orders and notifications */
-    .recent-orders ul li a, .notifications ul li {
-        text-decoration: none;
-        color: #007bff;
-        font-weight: bold;
-    }
-
-    .recent-orders ul li a:hover, .notifications ul li:hover {
-        color: #0056b3;
-    }
-
-    .date {
-        font-size: 12px;
-        color: #aaa;
-    }
-
-    /* Button styles */
-    .btn {
-        display: inline-block;
-        padding: 10px 15px;
-        background: #007bff;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-        font-size: 14px;
-        margin-top: 10px;
-        transition: background 0.3s;
-    }
-
-    .btn:hover {
-        background: #0056b3;
-    }
-
-    .btn-secondary {
-        background: #6c757d;
-    }
-
-    .btn-secondary:hover {
-        background: #5a6268;
-    }
-
-    /* Responsive Design for small screens */
-    @media (max-width: 768px) {
-        .dashboard-content {
-            flex-direction: column;
-        }
-
-        .dashboard-sidebar {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .dashboard-main-content {
-            padding: 10px;
-        }
-    }
 </style>
-<div class="dashboard-container">
-    <div class="dashboard-header">
-        <h2>Welcome, {{ user.first_name }}!</h2>
-        <p class="greeting-text">This is your personalized dashboard, where you can manage your orders, settings, and more!</p>
+<div class="container mt-4">
+    <h2 class="text-center mb-4">👤 Customer Dashboard</h2>
+
+    <!-- Summary Cards -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card stat-card bg-primary text-white shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-box"></i> Total Orders</h5>
+                    <p class="fs-2">{{ total_orders }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card stat-card bg-success text-white shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-coins"></i> Total Spent</h5>
+                    <p class="fs-2">KSh {{ total_spent }}</p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="dashboard-content">
-        <div class="dashboard-sidebar">
-            <div class="profile-info">
-                <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="profile-img">
-                <h4>{{ user.first_name }} {{ user.last_name }}</h4>
-                <p>{{ user.email }}</p>
+    <!-- Charts -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title text-center">📊 Orders Per Month</h5>
+                    <canvas id="ordersChart"></canvas>
+                </div>
             </div>
-            <nav>
-                <ul>
-                    <li><a href="">My Orders</a></li>
-                    <li><a href="">My Wishlist</a></li>
-                    <li><a href="">Account Settings</a></li>
-                    <li><a href="">Notifications</a></li>
-                    <li><a href="{% url 'inventory:browse_products' %}">Browse Products</a></li>
-                </ul>
-            </nav>
         </div>
 
-        <div class="dashboard-main-content">
-            <!-- Orders Section -->
-            <div class="recent-orders">
-                <h3>Recent Orders</h3>
-                <ul>
-                    {% for order in recent_orders %}
-                    <li>
-                        <strong>Order #{{ order.id }}:</strong> 
-                        Ksh{{ order.total_amount }} - 
-                        {{ order.status }} - 
-                        <a href="">View Details</a>
-                    </li>
-                    {% endfor %}
-                </ul>
-                <a href="" class="btn btn-primary">View All Orders</a>
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title text-center">💰 Spending Per Month</h5>
+                    <canvas id="spendingChart"></canvas>
+                </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Notifications Section -->
-            <div class="notifications">
-                <h3>Notifications</h3>
-                <ul>
-                    {% for notification in notifications %}
-                    <li>{{ notification.message }} <span class="date">{{ notification.created_at|date:"M d, Y" }}</span></li>
-                    {% endfor %}
-                </ul>
+    <!-- Recent Orders -->
+    <div class="row mt-4">
+        <div class="col">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">📜 Recent Orders</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Status</th>
+                                    <th>Total (KSh)</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>{{ order.id }}</td>
+                                    <td>
+                                        <span class="badge status-badge status-{{ order.status|lower }}">
+                                            {{ order.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ order.total_amount|floatformat:2 }}</td>
+                                    <td>{{ order.created_at|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No recent orders</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-
-            <!-- Quick Access to Account Settings -->
-            <div class="account-settings">
-                <h3>Account Settings</h3>
-                <p>Manage your personal details, address, payment methods, and more.</p>
-                <a href="" class="btn btn-secondary">Edit Account Settings</a>
-            </div>
-
         </div>
     </div>
 </div>
 
-{% endblock %}
+<!-- Charts Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Orders Per Month Chart
+    var ctx1 = document.getElementById("ordersChart").getContext("2d");
+    var ordersChart = new Chart(ctx1, {
+        type: "line",
+        data: {
+            labels: {{ months|safe }},
+            datasets: [{
+                label: "Orders",
+                data: {{ monthly_orders|safe }},
+                backgroundColor: "#3498db",
+                borderColor: "#2980b9",
+                fill: false
+            }]
+        }
+    });
 
+    // Spending Per Month Chart
+    var ctx2 = document.getElementById("spendingChart").getContext("2d");
+    var spendingChart = new Chart(ctx2, {
+        type: "bar",
+        data: {
+            labels: {{ months|safe }},
+            datasets: [{
+                label: "Spending (KSh)",
+                data: {{ monthly_spending|safe }},
+                backgroundColor: "#2ecc71"
+            }]
+        }
+    });
+</script>
+{% endblock %}

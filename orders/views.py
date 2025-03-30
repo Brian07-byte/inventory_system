@@ -268,7 +268,63 @@ def sales_dashboard(request):
     }
     return render(request, "sales/sales_dashboard.html", context)
 
+def get_daily_sales():
+    """Get today's total sales revenue."""
+    today = now().date()
+    return Order.objects.filter(created_at__date=today, status="Delivered", payment_status=True).aggregate(
+        total=Sum('total_amount')
+    )['total'] or 0
 
+def get_weekly_sales():
+    """Get sales for the past 7 days."""
+    last_week = now().date() - timedelta(days=7)
+    return Order.objects.filter(created_at__date__gte=last_week, status="Delivered", payment_status=True).aggregate(
+        total=Sum('total_amount')
+    )['total'] or 0
+
+def get_monthly_sales():
+    """Get sales for the current month."""
+    first_day_of_month = now().replace(day=1)
+    return Order.objects.filter(created_at__date__gte=first_day_of_month, status="Delivered", payment_status=True).aggregate(
+        total=Sum('total_amount')
+    )['total'] or 0
+
+def get_yearly_sales():
+    """Get sales for the current year."""
+    first_day_of_year = now().replace(month=1, day=1)
+    return Order.objects.filter(created_at__date__gte=first_day_of_year, status="Delivered", payment_status=True).aggregate(
+        total=Sum('total_amount')
+    )['total'] or 0
+
+def daily_sales_view(request):
+    """Display detailed daily sales report."""
+    today = now().date()
+    sales = Order.objects.filter(created_at__date=today, status="Delivered", payment_status=True)
+    total = get_daily_sales()
+    return render(request, "sales/daily_sales.html", {"sales": sales, "total": total})
+
+def weekly_sales_view(request):
+    """Display detailed weekly sales report."""
+    last_week = now().date() - timedelta(days=7)
+    sales = Order.objects.filter(created_at__date__gte=last_week, status="Delivered", payment_status=True)
+    total = get_weekly_sales()
+    return render(request, "sales/weekly_sales.html", {"sales": sales, "total": total})
+
+def monthly_sales_view(request):
+    """Display detailed monthly sales report."""
+    first_day_of_month = now().replace(day=1)
+    sales = Order.objects.filter(created_at__date__gte=first_day_of_month, status="Delivered", payment_status=True)
+    total = get_monthly_sales()
+    return render(request, "sales/monthly_sales.html", {"sales": sales, "total": total})
+
+def yearly_sales_view(request):
+    """Display detailed yearly sales report."""
+    first_day_of_year = now().replace(month=1, day=1)
+    sales = Order.objects.filter(created_at__date__gte=first_day_of_year, status="Delivered", payment_status=True)
+    total = get_yearly_sales()
+    return render(request, "sales/yearly_sales.html", {"sales": sales, "total": total})
+
+from django.utils.timezone import now, timedelta
 def export_orders_csv(request):
     """Exports all order data to a CSV file."""
     orders = Order.objects.values()
@@ -355,27 +411,29 @@ def generate_invoice(request, order_id):
 def order_report(request):
     """Generate an order report summary and display it in the template."""
 
-    # Check how you are fetching data
+    # **Key Order Metrics**
     total_orders = Order.objects.count()
 
-    # Fix revenue aggregation query
-    total_revenue = Order.objects.filter(status="Paid").aggregate(
+    # **Fix Revenue Aggregation Query (Only Paid Orders)**
+    total_revenue = Order.objects.filter(status="Delivered", payment_status=True).aggregate(
         total_revenue=Sum("total_amount")
     )["total_revenue"] or 0
 
-    # Fix order count queries (Ensure correct key-value pairs)
+    # **Fix Order Status Counts**
     pending_orders = Order.objects.filter(status="Pending").count()
     processing_orders = Order.objects.filter(status="Processing").count()
-    completed_orders = Order.objects.filter(status="Completed").count()
+    completed_orders = Order.objects.filter(status="Delivered").count()
     canceled_orders = Order.objects.filter(status="Canceled").count()
 
-    # Fetch all orders sorted by date
-    orders = Order.objects.all().order_by("-created_at")
+    # **Recent Orders Sorted by Date**
+    orders = Order.objects.select_related("user").only(
+        "id", "created_at", "status", "user__username", "total_amount"
+    ).order_by("-created_at")
 
-    # Prepare data for the template
+    # **Prepare Data for the Template**
     context = {
         "total_orders": total_orders,
-        "total_revenue": total_revenue,
+        "total_revenue": f"KSh {total_revenue:,.2f}",  # Format as Kenyan Shillings
         "pending_orders": pending_orders,
         "processing_orders": processing_orders,
         "completed_orders": completed_orders,
@@ -424,3 +482,66 @@ def generate_order_report_pdf(request):
         return response
 
     return HttpResponse("Error generating PDF", status=500)
+
+
+
+
+def sales_report(request):
+    # ✅ Total Sales Revenue & Orders
+    total_sales = Order.total_sales() or 0
+    total_orders = Order.total_orders() or 0
+
+    # ✅ Top Selling Products
+    sales_per_product = Order.sales_per_product()
+    product_names = [item["product_name"] for item in sales_per_product]
+    product_sales = [item["total_sold"] for item in sales_per_product]
+
+    # ✅ Top Customers
+    sales_per_customer = Order.sales_per_customer()
+    customer_names = [item["customer"] for item in sales_per_customer]
+    customer_spent = [item["total_spent"] for item in sales_per_customer]
+
+    # ✅ Revenue Over Time
+    revenue_per_day = (
+        Order.objects.filter(status="Delivered", payment_status=True)
+        .values(date=F("created_at__date"))  # Use alias for clarity
+        .annotate(total_sales=Sum("total_amount"))
+        .order_by("date")
+    )
+    revenue_dates = [entry["date"].strftime("%Y-%m-%d") for entry in revenue_per_day]
+    revenue_values = [entry["total_sales"] for entry in revenue_per_day]
+
+    # ✅ Payment Methods Breakdown
+    payment_methods = Payment.objects.values("payment_method").annotate(total_count=Count("id"))
+    payment_labels = [item["payment_method"] for item in payment_methods]
+    payment_counts = [item["total_count"] for item in payment_methods]
+
+    # ✅ Order Status Breakdown
+    order_status_counts = Order.objects.values("status").annotate(count=Count("id"))
+    order_status_labels = [entry["status"] for entry in order_status_counts]
+    order_status_values = [entry["count"] for entry in order_status_counts]
+
+    # ✅ Debugging: Print if Data is Empty
+    if not sales_per_product:
+        print("⚠️ No sales data found for products!")
+    if not sales_per_customer:
+        print("⚠️ No sales data found for customers!")
+    if not revenue_per_day:
+        print("⚠️ No revenue data found over time!")
+
+    context = {
+        "total_sales": total_sales,
+        "total_orders": total_orders,
+        "sales_per_product": product_names,
+        "sales_per_product_values": product_sales,
+        "sales_per_customer": customer_names,
+        "sales_per_customer_values": customer_spent,
+        "revenue_per_day_dates": revenue_dates,
+        "revenue_per_day_values": revenue_values,
+        "payment_methods_labels": payment_labels,
+        "payment_methods_values": payment_counts,
+        "order_status_labels": order_status_labels,
+        "order_status_values": order_status_values,
+    }
+
+    return render(request, "analytics/sales_report.html", context)

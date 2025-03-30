@@ -1,289 +1,233 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
-<style>
-    /* General Dashboard Styles */
-    .dashboard-container {
-        display: flex;
-        flex-direction: column;
-        margin: 20px;
-        background: #f9fafb;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    }
+<div class="container-fluid p-4">
+    <h2 class="mb-4">Admin Dashboard</h2>
 
-    .dashboard-header {
-        text-align: center;
-        margin-bottom: 40px;
-    }
-
-    .dashboard-header h2 {
-        font-size: 36px;
-        color: #333;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .greeting-text {
-        font-size: 20px;
-        color: #555;
-        margin-top: 10px;
-    }
-
-    /* Stats Summary */
-    .stats-summary {
-        display: flex;
-        justify-content: space-around;
-        margin-bottom: 40px;
-    }
-
-    .stat-item {
-        background: #ffffff;
-        padding: 20px;
-        text-align: center;
-        border-radius: 8px;
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-        width: 22%;
-    }
-
-    .stat-item h3 {
-        font-size: 22px;
-        color: #333;
-        margin-bottom: 10px;
-    }
-
-    .stat-item p {
-        font-size: 18px;
-        color: #007bff;
-        font-weight: 500;
-    }
-
-    /* Chart Section Styling */
-    .chart-container {
-        margin-top: 50px;
-    }
-
-    .chart-container h3 {
-        font-size: 28px;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 25px;
-    }
-
-    .chart-box {
-        display: flex;
-        justify-content: space-between;
-        gap: 20px;
-    }
-
-    .chart-box .chart-item {
-        width: 32%;
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .chart-item h4 {
-        font-size: 22px;
-        font-weight: 600;
-        margin-bottom: 15px;
-        color: #333;
-    }
-
-    .chart-item canvas {
-        width: 100%;
-        height: 280px;
-    }
-
-    /* Recent Orders and Notifications */
-    .recent-orders,
-    .recent-notifications {
-        background: #ffffff;
-        padding: 25px;
-        margin-top: 30px;
-        border-radius: 12px;
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .recent-orders h3,
-    .recent-notifications h3 {
-        font-size: 24px;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 20px;
-    }
-
-    .recent-orders ul,
-    .recent-notifications ul {
-        list-style-type: none;
-        padding: 0;
-    }
-
-    .recent-orders ul li,
-    .recent-notifications ul li {
-        font-size: 18px;
-        color: #333;
-        margin-bottom: 12px;
-    }
-
-    .recent-orders ul li a,
-    .recent-notifications ul li span {
-        color: #007bff;
-        font-weight: 500;
-    }
-
-    .recent-orders ul li a:hover,
-    .recent-notifications ul li span:hover {
-        text-decoration: underline;
-        color: #0056b3;
-    }
-
-    /* Buttons */
-    .btn {
-        display: inline-block;
-        padding: 12px 25px;
-        background-color: #007bff;
-        color: #fff;
-        font-size: 18px;
-        text-align: center;
-        border-radius: 6px;
-        text-decoration: none;
-        transition: background-color 0.3s ease, transform 0.2s ease-in-out;
-    }
-
-    .btn:hover {
-        background-color: #0056b3;
-        transform: scale(1.05);
-    }
-
-    .btn-secondary {
-        background-color: #6c757d;
-    }
-
-    .btn-secondary:hover {
-        background-color: #5a6268;
-        transform: scale(1.05);
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .stats-summary {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .stat-item {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .chart-box {
-            flex-direction: column;
-        }
-
-        .chart-box .chart-item {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-    }
-</style>
-
-<div class="dashboard-container">
-    <div class="dashboard-header">
-        <h2>Admin Dashboard</h2>
-        <p class="greeting-text">Welcome back, Admin!</p>
-    </div>
-
-    <!-- Stats Summary -->
-    <div class="stats-summary">
-        <div class="stat-item">
-            <h3>Total Users</h3>
-            <p>{{ total_users }}</p>
+    <!-- Key Metrics -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-users"></i> Total Users</h5>
+                    <p class="card-text fs-3">{{ total_users }}</p>
+                </div>
+            </div>
         </div>
-        <div class="stat-item">
-            <h3>Total Orders</h3>
-            <p>{{ total_orders }}</p>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-success shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-user"></i> Total Customers</h5>
+                    <p class="card-text fs-3">{{ total_customers }}</p>
+                </div>
+            </div>
         </div>
-        <div class="stat-item">
-            <h3>Total Products</h3>
-            <p>{{ total_products }}</p>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-warning shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-box"></i> Total Products</h5>
+                    <p class="card-text fs-3">{{ total_products }}</p>
+                </div>
+            </div>
         </div>
-        <div class="stat-item">
-            <h3>Total Revenue</h3>
-            <p>Ksh {{ total_revenue|floatformat:2 }}</p>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-danger shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-money-bill"></i> Total Revenue (KSh)</h5>
+                    <p class="card-text fs-3">KSh {{ total_revenue }}</p>
+                </div>
+            </div>
+        </div>
+        
+
+    <!-- Additional Metrics -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-info shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-boxes"></i> Total Inventory Stock</h5>
+                    <p class="card-text fs-3">{{ total_inventory_stock }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-warning shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-exclamation-triangle"></i> Low Stock Products</h5>
+                    <p class="card-text fs-3">{{ low_stock_products }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-secondary shadow">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fa fa-truck"></i> Total Suppliers</h5>
+                    <p class="card-text fs-3">{{ total_suppliers }}</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Chart Section -->
-    <div class="chart-box">
-        <!-- Revenue Chart -->
-        <div class="chart-item">
-            <h4>Revenue per Month</h4>
+    <!-- Recent Orders -->
+    <div class="mt-4">
+        <h4>Recent Orders</h4>
+        <table class="table table-hover shadow">
+            <thead class="table-dark">
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.user.username }}</td>
+                    <td>Ksh{{ order.total_amount|floatformat:2 }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if order.status == 'Completed' %}bg-success
+                            {% elif order.status == 'Pending' %}bg-warning
+                            {% elif order.status == 'Cancelled' %}bg-danger
+                            {% else %}bg-secondary{% endif %}">
+                            {{ order.status }}
+                        </span>
+                    </td>
+                    <td>{{ order.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center">No recent orders</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Sales Per Product -->
+    <div class="mt-4">
+        <h4>Top Selling Products</h4>
+        <table class="table table-hover shadow">
+            <thead class="table-dark">
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity Sold</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product, sales in product_sales.items %}
+                <tr>
+                    <td>{{ product }}</td>
+                    <td>{{ sales }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="2" class="text-center">No product sales data</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Sales Per Customer -->
+    <div class="mt-4">
+        <h4>Top Customers</h4>
+        <table class="table table-hover shadow">
+            <thead class="table-dark">
+                <tr>
+                    <th>Customer</th>
+                    <th>Total Spend</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer, spend in customer_sales.items %}
+                <tr>
+                    <td>{{ customer }}</td>
+                    <td>Ksh{{ spend|floatformat:2 }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="2" class="text-center">No customer sales data</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Sales & Orders Chart -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h4>Monthly Revenue</h4>
             <canvas id="revenueChart"></canvas>
         </div>
-        <!-- Orders Chart -->
-        <div class="chart-item">
-            <h4>Orders per Month</h4>
+
+        <div class="col-md-6">
+            <h4>Orders Per Month</h4>
             <canvas id="ordersChart"></canvas>
-        </div>
-        <!-- Category Distribution Chart -->
-        <div class="chart-item">
-            <h4>Product Category Distribution</h4>
-            <canvas id="categoryChart"></canvas>
         </div>
     </div>
 
-    
+    <!-- Product Category Distribution -->
+    <div class="mt-4">
+        <h4>Product Categories</h4>
+        <canvas id="categoryChart"></canvas>
+    </div>
+</div>
 
 {% endblock %}
 
-{% block scripts %}
+{% block extra_scripts %}
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-    var ctxRevenue = document.getElementById('revenueChart').getContext('2d');
-    var revenueChart = new Chart(ctxRevenue, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            datasets: [{
-                label: 'Revenue (Ksh)',
-                data: {{ monthly_revenue|safe }},
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                fill: true,
-            }]
-        }
-    });
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx1 = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: {{ months|safe }},
+                datasets: [{
+                    label: 'Monthly Revenue',
+                    data: {{ monthly_revenue|safe }},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 2
+                }]
+            }
+        });
 
-    var ctxOrders = document.getElementById('ordersChart').getContext('2d');
-    var ordersChart = new Chart(ctxOrders, {
-        type: 'bar',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            datasets: [{
-                label: 'Orders',
-                data: {{ monthly_orders|safe }},
-                backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                borderColor: 'rgba(255, 159, 64, 1)',
-                borderWidth: 1
-            }]
-        }
-    });
+        var ctx2 = document.getElementById('ordersChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: {{ months|safe }},
+                datasets: [{
+                    label: 'Orders Per Month',
+                    data: {{ monthly_orders|safe }},
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2
+                }]
+            }
+        });
 
-    var ctxCategory = document.getElementById('categoryChart').getContext('2d');
-    var categoryChart = new Chart(ctxCategory, {
-        type: 'pie',
-        data: {
-            labels: Object.keys({{ category_data|safe }}),
-            datasets: [{
-                data: Object.values({{ category_data|safe }}),
-                backgroundColor: ['#ff6f61', '#ffcc5c', '#6b5b95', '#f7cac9'],
-            }]
-        }
+        var ctx3 = document.getElementById('categoryChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'pie',
+            data: {
+                labels: {{ category_data.keys|safe }},
+                datasets: [{
+                    data: {{ category_data.values|safe }},
+                    backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff'],
+                    borderWidth: 2
+                }]
+            }
+        });
     });
 </script>
 {% endblock %}

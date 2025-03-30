@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import *
 from .views import process_payment, payment_history, admin_payment_list
 from .views import export_orders_csv, export_orders_excel,generate_invoice,order_report,generate_order_report_pdf
 from .views import admin_order_list, admin_order_detail, update_order_status, delete_order
@@ -42,5 +43,14 @@ urlpatterns = [
     path("payment/<int:order_id>/", process_payment, name="process_payment"),
     path("payment-history/", payment_history, name="payment_history"),
     path("admin/payments/", admin_payment_list, name="admin_payment_list"),
+    
+    ###sales
+    path("dashboard/", sales_dashboard, name="sales_dashboard"),
+    path("daily/", daily_sales_view, name="daily_sales"),
+    path("weekly/", weekly_sales_view, name="weekly_sales"),
+    path("monthly/", monthly_sales_view, name="monthly_sales"),
+    path("yearly/", yearly_sales_view, name="yearly_sales"),
+    path("sales-report/", sales_report, name="sales_report"),
+
 
 ]

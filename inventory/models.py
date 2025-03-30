@@ -3,6 +3,10 @@ from django.db.models import Sum
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from django.conf import settings
+from django.db import models
+from django.db.models import Sum
+from django.utils.timezone import now, timedelta
+from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -111,9 +115,6 @@ def create_stock_entry(sender, instance, created, **kwargs):
         Stock.objects.create(product=instance, quantity=10)  # Default initial stock
 
 
-# ===========================
-# SALE MODEL
-# ===========================
 class Sale(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='sales')
     customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
@@ -140,14 +141,42 @@ class Sale(models.Model):
         else:
             raise ValidationError(f"❌ Not enough stock for {self.product.name}. Available: {stock_entry.quantity}, Requested: {self.quantity_sold}")
 
+    # ==============================
+    # COMPREHENSIVE SALES ANALYSIS
+    # ==============================
+
     @staticmethod
     def get_total_revenue():
         """Calculate total revenue from all sales."""
         return Sale.objects.aggregate(total_revenue=Sum('total_price'))['total_revenue'] or 0
 
     @staticmethod
+    def get_total_sales_today():
+        """Calculate total sales for today."""
+        today = now().date()
+        return Sale.objects.filter(sale_date__date=today).aggregate(total_sales=Sum('total_price'))['total_sales'] or 0
+
+    @staticmethod
+    def get_total_sales_week():
+        """Calculate total sales for the current week."""
+        start_of_week = now().date() - timedelta(days=now().weekday())  # Monday of this week
+        return Sale.objects.filter(sale_date__date__gte=start_of_week).aggregate(total_sales=Sum('total_price'))['total_sales'] or 0
+
+    @staticmethod
+    def get_total_sales_month():
+        """Calculate total sales for the current month."""
+        start_of_month = now().replace(day=1)  # First day of the month
+        return Sale.objects.filter(sale_date__date__gte=start_of_month).aggregate(total_sales=Sum('total_price'))['total_sales'] or 0
+
+    @staticmethod
+    def get_total_sales_year():
+        """Calculate total sales for the current year."""
+        start_of_year = now().replace(month=1, day=1)  # First day of the year
+        return Sale.objects.filter(sale_date__date__gte=start_of_year).aggregate(total_sales=Sum('total_price'))['total_sales'] or 0
+
+    @staticmethod
     def get_best_selling_products():
-        """Retrieve best-selling products by quantity sold."""
+        """Retrieve best-selling products by total quantity sold (all-time)."""
         return (
             Sale.objects.values('product__name')
             .annotate(total_sold=Sum('quantity_sold'))
@@ -155,11 +184,110 @@ class Sale(models.Model):
         )
 
     @staticmethod
-    def get_sales_by_month():
-        """Get total sales per month for trends."""
+    def get_best_selling_products_today():
+        """Retrieve best-selling products today."""
+        today = now().date()
         return (
-            Sale.objects.extra({'month': "strftime('%%Y-%%m', sale_date)"})
+            Sale.objects.filter(sale_date__date=today)
+            .values('product__name')
+            .annotate(total_sold=Sum('quantity_sold'))
+            .order_by('-total_sold')
+        )
+
+    @staticmethod
+    def get_best_selling_products_week():
+        """Retrieve best-selling products for the current week."""
+        start_of_week = now().date() - timedelta(days=now().weekday())
+        return (
+            Sale.objects.filter(sale_date__date__gte=start_of_week)
+            .values('product__name')
+            .annotate(total_sold=Sum('quantity_sold'))
+            .order_by('-total_sold')
+        )
+
+    @staticmethod
+    def get_best_selling_products_month():
+        """Retrieve best-selling products for the current month."""
+        start_of_month = now().replace(day=1)
+        return (
+            Sale.objects.filter(sale_date__date__gte=start_of_month)
+            .values('product__name')
+            .annotate(total_sold=Sum('quantity_sold'))
+            .order_by('-total_sold')
+        )
+
+    @staticmethod
+    def get_sales_by_day():
+        """Get total sales per day for the last 30 days."""
+        start_date = now().date() - timedelta(days=30)
+        return (
+            Sale.objects.filter(sale_date__date__gte=start_date)
+            .extra({'day': "DATE(sale_date)"})
+            .values('day')
+            .annotate(total_sales=Sum('total_price'))
+            .order_by('day')
+        )
+
+    @staticmethod
+    def get_sales_by_week():
+        """Get total sales per week for the last 12 weeks."""
+        start_date = now().date() - timedelta(weeks=12)
+        return (
+            Sale.objects.filter(sale_date__date__gte=start_date)
+            .extra({'week': "strftime('%%Y-%%W', sale_date)"})  # Format: Year-Week
+            .values('week')
+            .annotate(total_sales=Sum('total_price'))
+            .order_by('week')
+        )
+
+    @staticmethod
+    def get_sales_by_month():
+        """Get total sales per month for the last 12 months."""
+        start_date = now().date() - timedelta(days=365)
+        return (
+            Sale.objects.filter(sale_date__date__gte=start_date)
+            .extra({'month': "strftime('%%Y-%%m', sale_date)"})  # Format: YYYY-MM
             .values('month')
             .annotate(total_sales=Sum('total_price'))
             .order_by('month')
         )
+
+    @staticmethod
+    def get_sales_by_year():
+        """Get total sales per year for the last 5 years."""
+        start_date = now().date() - timedelta(days=365 * 5)
+        return (
+            Sale.objects.filter(sale_date__date__gte=start_date)
+            .extra({'year': "strftime('%%Y', sale_date)"})  # Format: YYYY
+            .values('year')
+            .annotate(total_sales=Sum('total_price'))
+            .order_by('year')
+        )
+        
+        
+        from django.db import models
+from django.conf import settings
+from django.utils.timezone import now
+
+class Notification(models.Model):
+    EVENT_CHOICES = [
+        ('stock_added', 'Stock Added'),
+        ('stock_low', 'Stock Low'),
+        ('order_placed', 'Order Placed'),
+        ('order_shipped', 'Order Shipped'),
+        ('order_delivered', 'Order Delivered'),
+        ('new_user', 'New User Signup'),
+        ('payment_success', 'Payment Successful'),
+        ('payment_failed', 'Payment Failed'),
+        ('review_added', 'New Review'),
+        ('out_of_stock', 'Product Out of Stock'),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    event = models.CharField(max_length=20, choices=EVENT_CHOICES)
+    message = models.TextField()
+    timestamp = models.DateTimeField(default=now)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.get_event_display()} - {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
