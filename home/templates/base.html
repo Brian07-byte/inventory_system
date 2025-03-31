@@ -14,6 +14,87 @@
 
     <!-- Custom Styles -->
     <style>
+        /* Unread Notifications */
+.dropdown-item.unread {
+    font-weight: bold;
+}
+
+/* Read Notifications - Turn Text Red */
+.dropdown-item.read {
+    font-weight: normal;
+    background-color: rgba(255, 0, 0, 0.1); /* Light red background */
+}
+
+.text-danger {
+    color: red !important;
+}
+
+        /* Notification Bell Button */
+#notificationDropdown {
+    background-color: #fff;
+    border: none;
+    font-weight: bold;
+}
+
+#notificationDropdown i {
+    font-size: 1.3rem;
+    color: #ff4d4d; /* Red notification bell */
+}
+
+#notificationCount {
+    font-size: 0.8rem;
+    min-width: 18px;
+    min-height: 18px;
+    padding: 3px 6px;
+    border-radius: 50%;
+}
+
+/* Notification Dropdown */
+#notificationList {
+    max-height: 300px;
+    overflow-y: auto;
+    width: 350px;
+    border-radius: 8px;
+}
+
+#notificationList li {
+    list-style: none;
+}
+
+#notificationList .dropdown-item {
+    font-size: 0.9rem;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    transition: background 0.3s ease;
+}
+
+#notificationList .dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Notification Icon */
+#notificationList i {
+    font-size: 1.2rem;
+}
+
+/* Mark All as Read */
+#notificationList .text-primary {
+    text-align: center;
+    font-weight: bold;
+    padding: 8px 0;
+}
+
+#notificationList .text-primary:hover {
+    text-decoration: underline;
+}
+
+/* No Notifications */
+#notificationList p {
+    margin: 10px 0;
+    font-size: 0.9rem;
+}
+
         /* ✅ Sticky Navbar */
         .navbar {
             position: sticky;
@@ -100,53 +181,115 @@
 <body>
 
 <!-- ✅ Navbar -->
-<nav class="navbar d-flex justify-content-between align-items-center bg-dark p-3">
-    <div class="menu-toggle text-white" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-    </div>
+<nav class="navbar navbar-expand-lg bg-dark p-3">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
 
-    <!-- 🔔 Notification Icon -->
-    {% if user.is_authenticated %}
-    <div class="dropdown">
-        <button class="btn btn-light position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown">
-            🔔 Notifications
-            <span id="notificationCount" class="badge bg-danger position-absolute top-0 start-100 translate-middle">0</span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end p-2" id="notificationList">
-            <li><p class="text-center text-muted">No new notifications</p></li>
-        </ul>
-    </div>
-    {% endif %}
+        <!-- 📌 Menu Toggle -->
+        <div class="menu-toggle text-white" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </div>
 
-    <!-- 👤 User Profile -->
-    <div>
+        <!-- 🔔 Notification Icon -->
         {% if user.is_authenticated %}
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                👤 {{ user.username }}
-            </button>
-            <ul class="dropdown-menu">
-                {% if user.is_staff %}
-                <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}">🛠 Admin Panel</a></li>
-                {% else %}
-                <li><a class="dropdown-item" href="{% url 'customer_dashboard' %}">🛍 My Dashboard</a></li>
+            <button class="btn btn-light position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-bell-fill"></i> Notifications
+                {% if unread_notifications_count > 0 %}
+                    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">
+                        {{ unread_notifications_count }}
+                    </span>
                 {% endif %}
-                <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">🚪 Logout</a></li>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end p-2 shadow-lg" id="notificationList" style="width: 300px; max-height: 400px; overflow-y: auto;">
+                {% if notifications %}
+                    {% for notification in notifications %}
+                        <li {% if not notification.is_read %} class="unread" {% endif %}>
+                            <strong>{{ notification.event|capfirst }}:</strong> {{ notification.message }}
+                            <small>{{ notification.timestamp|date:"D, d M Y H:i" }}</small>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="text-center text-muted">No new notifications</li>
+                {% endif %}
             </ul>
         </div>
-        {% else %}
-        <a href="{% url 'login' %}" class="btn btn-success">Login</a>
-        <a href="{% url 'signup' %}" class="btn btn-warning">Sign Up</a>
-        {% endif %}
+    {% endif %}
+    
+    
+
+    <script>
+        function fetchNotifications() {
+            fetch("{% url 'inventory:get_notifications' %}")  // Ensure this matches your URLs
+                .then(response => response.json())
+                .then(data => {
+                    let notificationList = document.getElementById("notificationList");
+                    notificationList.innerHTML = ""; // Clear previous notifications
+                    
+                    if (data.notifications.length === 0) {
+                        notificationList.innerHTML = "<li class='text-center text-muted'>No new notifications</li>";
+                    } else {
+                        data.notifications.forEach(notification => {
+                            let item = document.createElement("li");
+                            item.innerHTML = `<strong>${notification.event}:</strong> ${notification.message} <small>${notification.timestamp}</small>`;
+                            notificationList.appendChild(item);
+                        });
+                    }
+    
+                    // Update badge count
+                    let notificationBadge = document.getElementById("notificationBadge");
+                    if (data.count > 0) {
+                        notificationBadge.innerText = data.count;
+                        notificationBadge.style.display = "inline";
+                    } else {
+                        notificationBadge.style.display = "none";
+                    }
+                });
+        }
+    
+        // Fetch notifications every 30 seconds
+        setInterval(fetchNotifications, 30000);
+        document.addEventListener("DOMContentLoaded", fetchNotifications);
+    </script>
+    
+        
+
+
+        <!-- 👤 User Profile -->
+        <div>
+            {% if user.is_authenticated %}
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    👤 {{ user.username }}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    {% if user.is_staff %}
+                    <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}">🛠 Admin Panel</a></li>
+                    {% else %}
+                    <li><a class="dropdown-item" href="{% url 'customer_dashboard' %}">🛍 My Dashboard</a></li>
+                    {% endif %}
+                    <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">🚪 Logout</a></li>
+                </ul>
+            </div>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn btn-success">Login</a>
+            <a href="{% url 'signup' %}" class="btn btn-warning">Sign Up</a>
+            {% endif %}
+        </div>
+
     </div>
 </nav>
+
+
+
+<!-- 🎨 Custom Styles -->
+
 
 
 <!-- ✅ Sidebar -->
 <aside class="sidebar">
     <h2 class="text-light text-center">📂 Dashboard</h2>
     <ul class="list-unstyled mt-4">
-        <li><a href="{% url 'admin_dashboard' %}">🏠 Home</a></li>
+        
 
         {% if user.is_authenticated %}
             {% if user.is_staff %}
@@ -235,39 +378,7 @@
         });
     });
 </script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        function fetchNotifications() {
-            fetch("{% url 'inventory:get_notifications' %}") // URL for fetching notifications
-                .then(response => response.json())
-                .then(data => {
-                    let notificationList = document.getElementById("notificationList");
-                    let notificationCount = document.getElementById("notificationCount");
-    
-                    if (data.notifications.length > 0) {
-                        notificationList.innerHTML = "";
-                        data.notifications.forEach(notification => {
-                            let item = document.createElement("li");
-                            item.innerHTML = `<a class="dropdown-item" href="${notification.url}">${notification.message}</a>`;
-                            notificationList.appendChild(item);
-                        });
-    
-                        // Update notification count
-                        notificationCount.innerText = data.unread_count;
-                        notificationCount.style.display = data.unread_count > 0 ? "inline" : "none";
-                    } else {
-                        notificationList.innerHTML = "<li><p class='text-center text-muted'>No new notifications</p></li>";
-                        notificationCount.style.display = "none";
-                    }
-                });
-        }
-    
-        // Fetch notifications every 10 seconds
-        fetchNotifications();
-        setInterval(fetchNotifications, 10000);
-    });
-    </script>
-    
+
 
 </body>
 </html>

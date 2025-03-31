@@ -59,6 +59,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name="products")
     supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True, blank=True, related_name="supplied_products")
     description = models.TextField(null=True, blank=True)
+    quantity = models.PositiveIntegerField(default=0)  # ✅ Add quantity field
     price = models.DecimalField(max_digits=10, decimal_places=2)
     image = models.ImageField(upload_to='product_images/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -264,8 +265,8 @@ class Sale(models.Model):
             .order_by('year')
         )
         
-        
-        from django.db import models
+
+from django.db import models
 from django.conf import settings
 from django.utils.timezone import now
 
@@ -283,11 +284,25 @@ class Notification(models.Model):
         ('out_of_stock', 'Product Out of Stock'),
     ]
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True,
+        related_name="notifications"
+    )
     event = models.CharField(max_length=20, choices=EVENT_CHOICES)
     message = models.TextField()
-    timestamp = models.DateTimeField(default=now)
-    is_read = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(default=now, db_index=True)
+    is_read = models.BooleanField(default=False, db_index=True)
+
+    class Meta:
+        ordering = ['-timestamp']  # Newest notifications first
 
     def __str__(self):
         return f"{self.get_event_display()} - {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
+
+    def mark_as_read(self):
+        """ Mark this notification as read """
+        self.is_read = True
+        self.save()

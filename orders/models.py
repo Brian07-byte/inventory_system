@@ -164,22 +164,26 @@ class Payment(models.Model):
         ('PayPal', 'PayPal'),
     ]
 
-    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='payment')
+    order = models.OneToOneField('Order', on_delete=models.CASCADE, related_name='payment')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_status = models.BooleanField(default=False)  # True = Paid, False = Unpaid/Refunded
+    payment_status = models.BooleanField(default=False)  # True = Paid, False = Unpaid
     payment_date = models.DateTimeField(auto_now_add=True)
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHODS)
 
     def save(self, *args, **kwargs):
         """Automatically update the Order status if payment is successful."""
         if self.payment_status:  # If Paid
-            self.order.status = "Processing"
-        else:  # If not paid or refunded
-            self.order.status = "Refunded"
+            self.order.status = "Paid"
+        else:  # If Unpaid
+            self.order.status = "Pending"
 
         self.order.save()
         super().save(*args, **kwargs)
 
+    def get_status_display(self):
+        """Returns a user-friendly payment status."""
+        return "Paid" if self.payment_status else "Pending"
+
     def __str__(self):
-        return f"Payment for Order {self.order.id} - {'Paid' if self.payment_status else 'Pending'}"
+        return f"Payment for Order {self.order.id} - {self.get_status_display()}"

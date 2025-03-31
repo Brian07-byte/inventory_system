@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Notifications</h1>
+    <p>Unread Notifications: {{ unread_notifications_count }}</p>
+
+    <ul>
+        {% for notification in notifications %}
+            <li {% if not notification.is_read %} class="unread" {% endif %}>
+                <strong>{{ notification.event|capfirst }}:</strong> {{ notification.message }}
+                <small>{{ notification.timestamp|date:"D, d M Y H:i" }}</small>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

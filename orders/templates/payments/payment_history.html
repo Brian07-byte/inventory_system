@@ -2,7 +2,7 @@
 
 {% block content %}
 <style>
-      /* Payment History Table Styling */
+/* Payment History Table Styling */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -27,7 +27,7 @@ th {
 }
 
 tr:nth-child(even) {
-    background: #f2f2f2;
+    background: #f8f9fa;
 }
 
 tr:hover {
@@ -39,18 +39,20 @@ td {
     color: #2c3e50;
 }
 
-/* Status Icons */
-td:nth-child(4) {
+/* Status Column Styling */
+td.status {
     font-weight: bold;
     text-align: center;
 }
 
-td:nth-child(4) .paid {
+.status .paid {
     color: green;
+    font-weight: bold;
 }
 
-td:nth-child(4) .pending {
+.status .pending {
     color: red;
+    font-weight: bold;
 }
 
 /* Responsive Design */
@@ -64,7 +66,14 @@ td:nth-child(4) .pending {
     }
 }
 
+.empty-state {
+    text-align: center;
+    font-style: italic;
+    padding: 20px;
+    color: #888;
+}
 </style>
+
 <h2>My Payment History</h2>
 
 <table>
@@ -77,14 +86,23 @@ td:nth-child(4) .pending {
     </tr>
     {% for payment in payments %}
     <tr>
-        <td>{{ payment.order.id }}</td>
-        <td>KSH {{ payment.amount }}</td>
+        <td>#{{ payment.order.id }}</td>
+        <td>KSH {{ payment.amount|floatformat:2 }}</td>
         <td>{{ payment.payment_method }}</td>
-        <td>{% if payment.payment_status %} ✅ Paid {% else %} ❌ Pending {% endif %}</td>
-        <td>{{ payment.payment_date }}</td>
+        <td class="status">
+            {% if payment.payment_status %}
+                <span class="paid">✅ Paid</span>
+            {% else %}
+                <span class="pending">❌ Pending</span>
+            {% endif %}
+        </td>
+        <td>{{ payment.payment_date|date:"M d, Y h:i A" }}</td>
     </tr>
     {% empty %}
-    <tr><td colspan="5">No payments found.</td></tr>
+    <tr>
+        <td colspan="5" class="empty-state">No payments found.</td>
+    </tr>
     {% endfor %}
 </table>
+
 {% endblock %}

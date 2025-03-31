@@ -23,9 +23,14 @@ urlpatterns = [
     # Customer
     path('browse-products/', product_list, name="browse_products"),
     path('products/<int:product_id>/', product_detail, name='product_detail'),
+    ####### Notifications 
+    # Admin notifications page
+    path('admin/notifications/', views.admin_notifications_view, name='admin_notifications'),
     
-    path('notifications/', notifications_view, name='notifications'),
-    path('get-notifications/', get_notifications, name='get_notifications'),
+    # Customer notifications page
+    path('notifications/', views.customer_notifications_view, name='customer_notifications'),
+    
+     path('get-notifications/', get_notifications, name='get_notifications'),
     
  
     

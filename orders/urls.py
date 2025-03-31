@@ -41,6 +41,7 @@ urlpatterns = [
     
     ######3payments
     path("payment/<int:order_id>/", process_payment, name="process_payment"),
+    path("payment/<int:order_id>/", process_payment, name="process_payment"),
     path("payment-history/", payment_history, name="payment_history"),
     path("admin/payments/", admin_payment_list, name="admin_payment_list"),
     

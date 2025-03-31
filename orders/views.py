@@ -132,37 +132,80 @@ def order_confirmation(request, order_id):
 
 # ✅ Check if User is Admin
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from orders.models import Order, Payment
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
+
 @login_required
 def process_payment(request, order_id):
-    """Handles payment processing"""
+    """Handles payment processing with MPesa, Credit Card, or PayPal"""
+    
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
     if request.method == "POST":
         payment_method = request.POST.get("payment_method")
-
+        mpesa_code = request.POST.get("mpesa_code", "").strip()  # Only for MPesa
+        card_number = request.POST.get("card_number", "").strip()  # For Credit Card / PayPal
+        
         # Ensure order is unpaid before proceeding
         if order.payment_status:
             messages.error(request, "This order is already paid.")
             return redirect("orders:cart_detail")  # Redirect to cart details if already paid
+        
+        # **MPesa Payment Validation**
+        if payment_method == "MPesa":
+            if not mpesa_code or len(mpesa_code) < 6:
+                messages.error(request, "Invalid MPesa transaction code.")
+                return redirect("orders:process_payment", order_id=order.id)
+            payment_details = f"MPesa Code: {mpesa_code}"
+        
+        # **Credit Card / PayPal Validation**
+        elif payment_method in ["Credit Card", "PayPal"]:
+            if not card_number or len(card_number) < 12:
+                messages.error(request, "Invalid card number.")
+                return redirect("orders:process_payment", order_id=order.id)
+            payment_details = f"Card Number: **** **** **** {card_number[-4:]}"
 
-        # Create and save payment
-        payment = Payment.objects.create(
+        else:
+            messages.error(request, "Invalid payment method.")
+            return redirect("orders:process_payment", order_id=order.id)
+        
+        # **Check if Payment Already Exists**
+        payment, created = Payment.objects.get_or_create(
             order=order,
-            user=request.user,
-            amount=order.total_amount,
-            payment_status=True,  # Mark as Paid
-            payment_method=payment_method,
+            defaults={  # Only set these values if it's a new payment
+                "user": request.user,
+                "amount": order.total_amount,
+                "payment_status": True,  # Mark as Paid
+                "payment_method": payment_method,
+            }
         )
 
+        if not created:
+            # Update existing payment instead of creating a duplicate
+            payment.user = request.user
+            payment.amount = order.total_amount
+            payment.payment_status = True  # Mark as Paid
+            payment.payment_method = payment_method
+            payment.save()
+
+        # Update Order Status
         order.payment_status = True
         order.status = "Processing"
         order.save()
 
-        messages.success(request, "Payment successful!")
-        return redirect("orders:order_confirmation", order_id=order.id)  # Correct redirect after payment
+        # Log the transaction
+        logger.info(f"Payment successful - Order {order.id}, User {request.user.username}, Method: {payment_method}, Details: {payment_details}")
 
+        messages.success(request, f"Payment successful! {payment_details}")
+        return redirect("orders:order_confirmation", order_id=order.id)  # Redirect after successful payment
+    
     return render(request, "payments/payment_form.html", {"order": order})
-
 
 @login_required
 def payment_history(request):

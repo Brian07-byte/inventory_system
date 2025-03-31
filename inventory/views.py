@@ -3,6 +3,11 @@ from django.contrib import messages
 from django.db import IntegrityError, transaction
 from django.contrib import messages
 from django.db.models import Q
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from .models import Notification
 from django.db.models import Sum
 from django.db import IntegrityError
 from xhtml2pdf import pisa
@@ -282,30 +287,53 @@ def product_list(request):
 def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     return render(request, 'inventory/customer/product_detail.html', {'product': product})
+###   Notifications#########
+# ✅ Fetch unread notifications
+# Check if the user is an admin
+from django.contrib.auth.decorators import user_passes_test
+def is_admin(user):
+    return user.is_superuser
 
+# Admin Notifications View
+@user_passes_test(is_admin)
+def admin_notifications_view(request):
+    notifications = Notification.objects.all().order_by('-timestamp')  # Get all notifications, ordered by timestamp
+    unread_notifications = notifications.filter(is_read=False)  # Get unread notifications
 
+    # Mark all notifications as read when the admin views them
+    notifications.filter(is_read=False).update(is_read=True)
 
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .models import Notification
-
+    return render(request, 'admin_notifications.html', {
+        'notifications': notifications,
+        'unread_notifications_count': unread_notifications.count(),
+    })
+    
 @login_required
-def notifications_view(request):
-    notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')
-    return render(request, 'notifications.html', {'notifications': notifications})
+def customer_notifications_view(request):
+    notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')  # Get the user's notifications
+    unread_notifications_count = notifications.filter(is_read=False).count()  # Get unread notifications count
 
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from .models import Notification
+    # Mark all notifications as read when the user views them
+    notifications.filter(is_read=False).update(is_read=True)
 
+    return render(request, 'customer_notifications.html', {
+        'notifications': notifications,
+        'unread_notifications_count': unread_notifications_count,  # Pass the count here
+    })
+    
 @login_required
 def get_notifications(request):
-    notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-timestamp')[:5]
-    data = {
-        "notifications": [
-            {"message": n.message, "url": "/notifications/"}
-            for n in notifications
-        ],
-        "unread_count": notifications.count()
-    }
-    return JsonResponse(data)
+    """Fetches unread notifications for the logged-in user"""
+    notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-timestamp')
+    
+    # Convert notifications to JSON
+    notifications_data = [
+        {
+            "message": notification.message,
+            "event": notification.event,
+            "timestamp": notification.timestamp.strftime('%Y-%m-%d %H:%M'),
+        }
+        for notification in notifications
+    ]
+
+    return JsonResponse({"notifications": notifications_data, "count": notifications.count()})
